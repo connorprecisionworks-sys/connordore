@@ -395,7 +395,7 @@
 <script>
 (function(){
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const DITHER_STRENGTH=0.6;   // 0 clean .. 1 full dither
+  const DITHER_STRENGTH=0.76;   // 0 clean .. 1 full dither
   let CROSS_X=0.22, CROSS_BASE=0.60, CROSS_DIM=0.70; const CROSS_H=0.30; // cross x, base y, brightness (let = draggable in edit mode)
 
   const clouds=document.getElementById('clouds');
@@ -457,7 +457,7 @@
     for(let i=0;i<ne;i++)embers.push(newEmber(true));
   }
   function size(){
-    SCALE = innerWidth<700?2.2:1.7;            // lower = finer dither / sharper
+    SCALE = innerWidth<700?2.1:1.6;            // lower = finer dither / sharper
     RW=Math.round(innerWidth/SCALE); RH=Math.round(innerHeight/SCALE);
     render.width=out.width=disp.width=mtmp.width=ctmp.width=RW; render.height=out.height=disp.height=mtmp.height=ctmp.height=RH;
     disp.style.width=innerWidth+'px'; disp.style.height=innerHeight+'px';
