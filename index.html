@@ -45,8 +45,9 @@
 
   #hud{position:absolute;inset:0;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:58vh;text-align:center}
 
-  /* animated lava mountain video: hidden off-screen, drawn into the dithered canvas as the mountain layer */
-  #lavaVid{position:absolute;left:-9999px;top:0;width:8px;height:8px;opacity:0;pointer-events:none}
+  /* animated lava mountain video: kept in-viewport (behind the canvas) so the browser actually decodes it,
+     then drawn into the dithered canvas as the mountain layer */
+  #lavaVid,#crossVid{position:absolute;left:0;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none;z-index:-1}
   /* animated name straight from the shader lab; screen blend drops the black.
      Must live at scene level (not inside #hud) so it can blend with the canvas behind it. */
   #nameVid{position:absolute;left:50%;top:37%;transform:translate(-50%,-50%);
@@ -73,12 +74,12 @@
   .lfill{position:absolute;inset:2px;width:0;background:var(--accent);transition:width .12s linear}
   .ltxt{font-family:'Press Start 2P';font-size:10px;color:#fff;margin-top:10px;letter-spacing:.1em}
 
-  #cursor{position:fixed;z-index:200;width:30px;height:30px;margin:-15px 0 0 -15px;pointer-events:none;
-    filter:drop-shadow(0 0 2px rgba(0,0,0,.9))}
-  #cursor::before,#cursor::after{content:'';position:absolute;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.65)}
-  #cursor::before{left:14px;top:0;width:2px;height:30px}
-  #cursor::after{top:14px;left:0;height:2px;width:30px}
-  #cursor i{position:absolute;left:12px;top:12px;width:6px;height:6px;background:var(--accent);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.7)}
+  #cursor{position:fixed;z-index:99999;width:38px;height:38px;margin:-19px 0 0 -19px;pointer-events:none;
+    filter:drop-shadow(0 0 2px rgba(0,0,0,.95))}
+  #cursor::before,#cursor::after{content:'';position:absolute;background:var(--accent);box-shadow:0 0 0 1px rgba(0,0,0,.75)}
+  #cursor::before{left:18px;top:0;width:2px;height:38px}
+  #cursor::after{top:18px;left:0;height:2px;width:38px}
+  #cursor i{position:absolute;left:16px;top:16px;width:6px;height:6px;background:#fff;border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.85)}
 
   #entered{position:absolute;z-index:9;inset:0;display:none;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.55)}
   #entered.show{display:flex}
@@ -222,6 +223,7 @@
   <img id="clouds" class="asset" src="assets/clouds.png" alt="" />
   <img id="fg"     class="asset" src="assets/mountain.png" alt="" />
   <img id="fgSil"  class="asset" src="assets/foreground.png" alt="" />
+  <img id="crossImg" class="asset" src="assets/cross.png" alt="" />
 
   <canvas id="dither"></canvas>
   <div id="ditherOverlay"></div>
@@ -230,6 +232,7 @@
 
   <!-- animated lava overlay (scene-level; screen blend drops its black background) -->
   <video id="lavaVid" src="assets/lava.mp4" autoplay muted playsinline></video>
+  <video id="crossVid" src="assets/cross.mp4" autoplay muted loop playsinline></video>
 
   <!-- animated name (scene-level so the screen blend can drop its black) -->
   <video id="nameVid" src="connor-name.webm" autoplay loop muted playsinline></video>
@@ -393,13 +396,20 @@
 (function(){
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const DITHER_STRENGTH=0.72;   // 0 clean .. 1 full dither
+  const CROSS_X=0.72, CROSS_BASE=0.9, CROSS_H=0.46; // cross center x, base y, height (screen fractions). Smaller + tucked behind the foreground = farther back
 
   const clouds=document.getElementById('clouds');
   const fg=document.getElementById('fg');
   const fgSil=document.getElementById('fgSil');
   const lavaVid=document.getElementById('lavaVid');
   let lavaReady=false;
-  lavaVid.addEventListener('loadeddata',()=>{lavaReady=true;});
+  lavaVid.addEventListener('loadeddata',()=>{lavaReady=true; lavaVid.play().catch(()=>{});});
+  lavaVid.play&&lavaVid.play().catch(()=>{});
+  const crossImg=document.getElementById('crossImg');
+  const crossVid=document.getElementById('crossVid');
+  let crossReady=false;
+  crossVid.addEventListener('loadeddata',()=>{crossReady=true; crossVid.play().catch(()=>{});});
+  crossVid.play&&crossVid.play().catch(()=>{});
   const disp=document.getElementById('dither');
   const dctx=disp.getContext('2d');
   const render=document.createElement('canvas');
@@ -408,6 +418,8 @@
   const octx=out.getContext('2d');
   const mtmp=document.createElement('canvas');
   const mtx=mtmp.getContext('2d');
+  const ctmp=document.createElement('canvas');
+  const ctx2=ctmp.getContext('2d');
 
   // seamless cloud tile = image + horizontally-mirrored image, so edges always match (no seam)
   let cloudTile=null;
@@ -442,7 +454,7 @@
   function size(){
     SCALE = innerWidth<700?2.2:1.7;            // lower = finer dither / sharper
     RW=Math.round(innerWidth/SCALE); RH=Math.round(innerHeight/SCALE);
-    render.width=out.width=disp.width=mtmp.width=RW; render.height=out.height=disp.height=mtmp.height=RH;
+    render.width=out.width=disp.width=mtmp.width=ctmp.width=RW; render.height=out.height=disp.height=mtmp.height=ctmp.height=RH;
     disp.style.width=innerWidth+'px'; disp.style.height=innerHeight+'px';
     initParticles();
   }
@@ -512,7 +524,19 @@
       for(let x=off-tw; x<RW; x+=tw) rctx.drawImage(cloudTile, x, RH*0.52-pmy*RW*0.01, tw, th);
       rctx.restore();
     }
-    // 4) FOREGROUND: detailed rim-lit rocks/trees (real alpha) -> textured front layer, most parallax
+    // 3b) CROSS: cloth video masked to its silhouette, drawn BEHIND the foreground so it reads farther back
+    if(crossReady && crossVid.readyState>=2 && crossImg.naturalWidth){
+      const ch=RH*CROSS_H, cw=ch*(crossVid.videoWidth/crossVid.videoHeight);
+      const cxl=RW*CROSS_X - cw/2 - pmx*RW*0.035;
+      const cyt=RH*CROSS_BASE - ch - pmy*RW*0.018;
+      ctx2.clearRect(0,0,RW,RH);
+      ctx2.drawImage(crossVid, cxl, cyt, cw, ch);
+      ctx2.globalCompositeOperation='destination-in';
+      ctx2.drawImage(crossImg, cxl, cyt, cw, ch);
+      ctx2.globalCompositeOperation='source-over';
+      rctx.drawImage(ctmp,0,0);
+    }
+    // 4) FOREGROUND: detailed rim-lit rocks/trees (real alpha), most parallax -> occludes the cross base
     if(fgSil.naturalWidth){
       const zoom=1+Math.min(el*0.006,0.09);
       const [sx,sy,sw,sh]=cover(fgSil.naturalWidth,fgSil.naturalHeight,RW,RH,zoom);
