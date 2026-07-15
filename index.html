@@ -7,7 +7,7 @@
 <meta name="description" content="Dithered CRT intro. Landscape base with drifting sky clouds, chrome title, orange brush-script accent." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Kaushan+Script&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Kaushan+Script&family=Fraunces:ital,wght@0,400;0,600;1,500&display=swap" rel="stylesheet">
 <style>
   /* ============================================================
      REBRAND / TUNE HERE
@@ -50,8 +50,17 @@
   #lavaVid,#crossVid{position:absolute;left:0;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none;z-index:-1}
   /* animated name straight from the shader lab; screen blend drops the black.
      Must live at scene level (not inside #hud) so it can blend with the canvas behind it. */
-  #nameVid{position:absolute;left:50%;top:37%;transform:translate(-50%,-50%);
+  /* glowing shader-lab name clip: hidden in favor of the editorial masthead (remove display:none to bring it back) */
+  #nameVid{display:none;position:absolute;left:50%;top:37%;transform:translate(-50%,-50%);
     width:min(80vw,1080px);height:auto;z-index:7;mix-blend-mode:screen;pointer-events:none}
+  /* editorial name masthead */
+  #masthead{position:absolute;top:34px;left:42px;z-index:8;line-height:1.05;
+    text-shadow:0 2px 14px rgba(0,0,0,.85),0 1px 2px rgba(0,0,0,.9);transition:opacity .5s ease}
+  #masthead .nm{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.7rem,3.4vw,2.9rem);
+    color:#f4efe6;letter-spacing:.005em}
+  #masthead .rule{width:44px;height:1px;background:var(--accent);margin:12px 0 10px;opacity:.9}
+  #masthead .tag{font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.16em;color:rgba(244,239,230,.72)}
+  @media(max-width:640px){#masthead{top:22px;left:22px}}
 
   .credit{margin-top:40px;font-family:'Press Start 2P',monospace;font-size:clamp(11px,1.5vw,15px);
     color:#fff;letter-spacing:.06em;text-shadow:0 2px 4px rgba(0,0,0,.85)}
@@ -90,7 +99,7 @@
   /* ===== FULL SITE (revealed after PRESS START) ===== */
   .bl{animation:blink 1.05s steps(1) infinite}
   @keyframes blink{50%{opacity:0}}
-  #stage.entered #hud,#stage.entered #nameVid,#stage.entered #lavaVid,#stage.entered #load{opacity:0!important;pointer-events:none;transition:opacity .5s ease}
+  #stage.entered #hud,#stage.entered #nameVid,#stage.entered #lavaVid,#stage.entered #masthead,#stage.entered #load{opacity:0!important;pointer-events:none;transition:opacity .5s ease}
   #stage.entered #dither{opacity:.14;transition:opacity 1s ease}
   #stage.entered #flicker{opacity:.1}
   html.scroll,body.scroll{overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth}
@@ -249,6 +258,13 @@
 
   <!-- animated name (scene-level so the screen blend can drop its black) -->
   <video id="nameVid" src="connor-name-v6.webm" autoplay loop muted playsinline></video>
+
+  <!-- editorial name masthead (top-left) -->
+  <div id="masthead">
+    <div class="nm">Connor Dore</div>
+    <div class="rule"></div>
+    <div class="tag">AI TOOLS, BUILT &amp; SHIPPED</div>
+  </div>
 
   <div id="hud">
     <button id="start">PRESS START</button>
