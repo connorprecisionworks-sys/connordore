@@ -25,7 +25,7 @@
   :root{ --accent:#FF6A2C; --accent-dim:#c0491a; }
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%;overflow:hidden;background:#000}
-  body{cursor:none;font-family:'VT323',monospace}
+  body{font-family:'VT323',monospace}
   #stage{position:fixed;inset:0}
   #dither{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;display:block}
   #dither.fallback{filter:grayscale(1) contrast(1.35)}
@@ -58,7 +58,7 @@
   .credit b{color:var(--accent)}
 
   #start{margin-top:32px;font-family:'Press Start 2P',monospace;font-size:clamp(12px,1.6vw,15px);
-    color:#e9e2d8;border:none;cursor:none;padding:17px 30px;letter-spacing:.12em;
+    color:#e9e2d8;border:none;cursor:pointer;padding:17px 30px;letter-spacing:.12em;
     background:rgba(18,17,16,0.78);border-radius:0;backdrop-filter:blur(2px);
     box-shadow:inset 0 0 0 1px rgba(230,220,205,.22), 5px 5px 0 0 rgba(0,0,0,.5);
     text-shadow:0 1px 0 rgba(0,0,0,.5);
@@ -76,8 +76,7 @@
   .lfill{position:absolute;inset:2px;width:0;background:var(--accent);transition:width .12s linear}
   .ltxt{font-family:'Press Start 2P';font-size:10px;color:#fff;margin-top:10px;letter-spacing:.1em}
 
-  #cursor{position:fixed;top:0;left:0;z-index:99999;width:38px;height:38px;margin:-19px 0 0 -19px;pointer-events:none;
-    filter:drop-shadow(0 0 2px rgba(0,0,0,.95))}
+  #cursor{display:none}
   #cursor::before,#cursor::after{content:'';position:absolute;background:var(--accent);box-shadow:0 0 0 1px rgba(0,0,0,.75)}
   #cursor::before{left:18px;top:0;width:2px;height:38px}
   #cursor::after{top:18px;left:0;height:2px;width:38px}
