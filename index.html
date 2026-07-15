@@ -396,7 +396,7 @@
 (function(){
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const DITHER_STRENGTH=0.72;   // 0 clean .. 1 full dither
-  const CROSS_X=0.90, CROSS_BASE=0.72, CROSS_H=0.46; // cross center x, base y, height (screen fractions). Base near the foreground top edge = planted in the ground
+  const CROSS_X=0.87, CROSS_BASE=0.73, CROSS_H=0.35, CROSS_DIM=0.72; // cross x, base y, height, brightness (smaller+dimmer = farther back)
 
   const clouds=document.getElementById('clouds');
   const fg=document.getElementById('fg');
@@ -534,7 +534,7 @@
       ctx2.globalCompositeOperation='destination-in';
       ctx2.drawImage(crossImg, cxl, cyt, cw, ch);
       ctx2.globalCompositeOperation='source-over';
-      rctx.drawImage(ctmp,0,0);
+      rctx.save(); rctx.globalAlpha=CROSS_DIM; rctx.drawImage(ctmp,0,0); rctx.restore();
     }
     // 4) FOREGROUND: detailed rim-lit rocks/trees (real alpha), most parallax -> occludes the cross base
     if(fgSil.naturalWidth){
