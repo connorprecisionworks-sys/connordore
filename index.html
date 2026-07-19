@@ -386,6 +386,20 @@
     font-family:'Tahoma',Geneva,sans-serif;font-size:clamp(1rem,2.1vw,1.5rem);color:#f5e000;
     text-shadow:0 2px 4px #000,0 0 2px #000;opacity:0;transition:opacity .4s ease;letter-spacing:.01em}
   .ds-sub.show{opacity:1}
+  /* ===== agent terminal (Claude Code recreation) ===== */
+  #agentterm{background:#0a0a0a;padding:90px 0 110px;border-top:1px solid rgba(255,255,255,.08)}
+  .at-wrap{max-width:800px;margin:0 auto;padding:0 24px}
+  .at-term{background:#0c0c0c;border:1px solid rgba(255,255,255,.14);border-radius:7px;min-height:430px;padding:20px 22px;
+    font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.6;color:#cfcfcf;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+  .at-out div{min-height:1.5em;white-space:pre-wrap}
+  .at-out .dim{color:#787878}
+  .at-out .user{color:#eaeaea}
+  .at-out .agent{color:#dcdcdc}
+  .at-out .sel{color:#fff}
+  .at-out .boxln{color:#8f8f8f}
+  .at-cur{background:#cfcfcf;color:#000;font-family:'JetBrains Mono',monospace}
+  .at-cap{margin-top:18px;font-family:'VT323',monospace;font-size:1.35rem;color:#8a8a8a;text-align:center;opacity:0;transition:opacity .6s ease}
+  .at-cap.show{opacity:1}
   /* ---- polished UI overrides ---- */
   .ds-screen{background:radial-gradient(120% 120% at 50% 40%,#0f9a9a,#0a6f6f)}
   .ds-icon{width:92px;padding:8px 6px;gap:7px}
@@ -482,7 +496,7 @@
       <div class="cp-photo"></div>
       <div class="cp-info">
         <div class="cp-name">connor dore</div>
-        <p class="cp-line">no forms. no "quick 15?". just reach out.</p>
+        <p class="cp-line">just reach out.</p>
         <div class="cp-links">
           <a href="https://github.com/connorprecisionworks-sys" target="_blank" rel="noopener">github</a>
           <a href="LINKEDIN_URL" target="_blank" rel="noopener">linkedin</a>
@@ -494,16 +508,10 @@
     <div class="cp-foot">connordore.com</div>
   </section>
 
-  <section id="deskstory">
-    <div class="ds-cine">
-      <img id="dsMachine" src="assets/computer.png" alt="" onerror="this.style.display='none'">
-      <div class="ds-screen" id="dsScreen">
-        <div class="ds-desktop" id="dsDesktop"></div>
-        <div class="ds-note blue"></div>
-        <div class="ds-note red"></div>
-        <div class="ds-taskbar"><span class="ds-start">Start</span><span class="ds-clock" id="dsClock"></span></div>
-      </div>
-      <div class="ds-sub" id="dsSub"></div>
+  <section id="agentterm">
+    <div class="at-wrap">
+      <div class="at-term"><div class="at-out" id="atOut"></div></div>
+      <div class="at-cap" id="atCap"></div>
     </div>
   </section>
   </div>
@@ -747,110 +755,52 @@
 
 <script>
 (function(){
-  const sec=document.getElementById('deskstory'); if(!sec) return;
-  const machine=document.getElementById('dsMachine');
-  const scr=document.getElementById('dsScreen');
-  const desktop=document.getElementById('dsDesktop');
-  const sub=document.getElementById('dsSub');
-  const clock=document.getElementById('dsClock'); if(clock) clock.textContent='11:58 PM';
+  const sec=document.getElementById('agentterm'); if(!sec) return;
+  const out=document.getElementById('atOut'); const cap=document.getElementById('atCap');
   let started=false;
-
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-  const say=t=>{sub.textContent=t;sub.classList.add('show');};
-  const hush=()=>sub.classList.remove('show');
-  const line=async(t,h=2600)=>{say(t);await sleep(h);};
-  const waitClick=el=>new Promise(res=>{const h=()=>{el.removeEventListener('click',h);res();};el.addEventListener('click',h);});
-
-  function icon(name,x,y,bad){
-    const b=document.createElement('button'); b.className='ds-icon'+(bad?' new':'');
-    b.style.left=x; b.style.top=y;
-    b.innerHTML='<span class="ds-fi'+(bad?' bad':'')+'"></span><span class="ds-ln">'+name+'</span>';
-    desktop.appendChild(b); return b;
-  }
-  function win(title,body,x,y,w){
-    const el=document.createElement('div'); el.className='ds-win'; el.style.left=x; el.style.top=y; if(w)el.style.width=w;
-    el.innerHTML='<div class="ds-tb"><span>'+title+'</span><button>&times;</button></div><div class="ds-bd">'+body+'</div>';
-    scr.appendChild(el); el.querySelector('button').onclick=()=>el.remove(); return el;
-  }
-  const EMSG=['A fatal exception 0E has occurred.','Access is denied.','The operation could not be completed.','Unknown process is not responding.','System resource conflict at 0x0000.','This action was not authorized.','Explorer has performed an illegal operation.'];
-  function spawnErr(){
-    const el=document.createElement('div'); el.className='ds-err';
-    el.style.left=(6+Math.random()*68)+'%'; el.style.top=(8+Math.random()*60)+'%';
-    el.innerHTML='<div class="ds-tb"><span>Error</span><button>&times;</button></div><div class="ds-eb"><div class="ico">!</div><div class="msg">'+EMSG[Math.floor(Math.random()*EMSG.length)]+'</div></div><div class="ds-ok"><button>OK</button></div>';
-    scr.appendChild(el); el.querySelectorAll('button').forEach(b=>b.onclick=()=>el.remove());
-  }
-  function typeLine(pre,text){return new Promise(res=>{ if(pre.textContent)pre.textContent+='\n'; let i=0; const t=setInterval(()=>{ pre.textContent+=text.charAt(i); i++; if(i>=text.length){clearInterval(t);res();} },26); });}
-
-  function blink(el){ setInterval(()=>{el.style.visibility=el.style.visibility==='hidden'?'visible':'hidden';},530); }
-  async function story(){
-    started=true;
-    // ENTER: the full computer is on screen; click anywhere to go in
-    say('click the computer to power it on.');
-    await new Promise(res=>{ const h=()=>{sec.removeEventListener('click',h);res();}; sec.addEventListener('click',h); });
-    hush(); await sleep(200);
-    if(machine) machine.classList.add('gone');
-    scr.classList.add('on');
-    await sleep(700);
-    const NORMAL={
-      'My Documents':'<div class="ds-menu"><span>F</span>ile <span>E</span>dit <span>V</span>iew</div><div class="file">resume_final_v3.doc</div><div class="file">notes.txt</div><div class="file">taxes_2025.xls</div>',
-      'Photos':'<div class="ds-menu"><span>F</span>ile <span>E</span>dit <span>V</span>iew</div><div class="file">beach.jpg</div><div class="file">dog.jpg</div><div class="file">screenshot.png</div>',
-      'System':'<div class="ds-menu"><span>F</span>ile <span>E</span>dit <span>V</span>iew</div><div class="file">config.sys</div><div class="file">kernel32.dll</div><div class="file">autoexec.bat</div>'
-    };
-    let opened=0, waiters=[];
-    const noteOpen=()=>{ opened++; waiters=waiters.filter(w=>{ if(opened>=w.n){w.r();return false;} return true; }); };
-    const waitOpens=n=>new Promise(r=>{ opened>=n ? r() : waiters.push({n,r}); });
-    Object.keys(NORMAL).forEach((name,i)=>{
-      const ic=icon(name,'8%',(7+i*23)+'%');
-      ic.addEventListener('click',()=>{
-        ic.classList.add('sel');
-        if(ic.dataset.open) return; ic.dataset.open='1'; ic.classList.remove('hint');
-        win(name,NORMAL[name],(24+i*11)+'%',(14+i*9)+'%','260px'); noteOpen();
-      });
+  function add(text,cls,delay){
+    return new Promise(res=>{
+      const d=document.createElement('div'); if(cls)d.className=cls; out.appendChild(d);
+      if(delay===0){ d.textContent=text; res(); return; }
+      let i=0; const t=setInterval(()=>{ d.textContent=text.slice(0,i); i++; if(i>text.length){clearInterval(t);res();} }, delay||16);
     });
-    await line('this is my machine. every file, every process. i keep it clean.',3600);
-    await line('open a couple of folders. take a look around.',2800);
-    document.querySelectorAll('#dsDesktop .ds-icon').forEach(i=>i.classList.add('hint'));
-    await waitOpens(2);
-    document.querySelectorAll('#dsDesktop .ds-icon').forEach(i=>i.classList.remove('hint'));
-    await line('all normal. exactly where i left everything.',3000);
-    hush(); await sleep(900);
-    scr.querySelectorAll('.ds-win').forEach(w=>w.remove());
-    await sleep(600);
-    const bad=icon('access_granted','46%','20%',true);
-    await line('...wait.',1400);
-    await line('that folder is not mine. i never made it.',3000);
-    bad.classList.add('hint');
-    await waitClick(bad); bad.classList.remove('hint');
-    for(let i=0;i<5;i++){ spawnErr(); await sleep(140); }
-    await line('these errors are not real. nothing actually failed.',3200);
-    const flood=setInterval(spawnErr,300);
-    await sleep(500);
-    const term=document.createElement('div'); term.className='ds-term';
-    term.innerHTML='<div class="ds-tb2">C:\\WINDOWS\\system32\\cmd.exe</div><pre></pre>';
-    scr.appendChild(term); const pre=term.querySelector('pre');
-    await line('something opened a terminal. i did not run that.',3200);
-    for(const c of ['> whoami','root','> ls -la /','reading filesystem . . .','> ps aux','[0007] spawn --error --loop &','[0008] scan --access --deep &']){ await typeLine(pre,c); await sleep(340); }
-    await line('it is reading everything.',2600);
-    await line('it has more access than i ever gave it.',3200);
-    await line('i let it in without thinking about how much it could touch.',3800);
-    await line('shut it down. now.',2400);
-    // ACT 3: black takeover terminal
-    clearInterval(flood);
-    const blk=document.createElement('div'); blk.className='ds-black'; blk.innerHTML='<pre></pre>'; scr.appendChild(blk);
-    void blk.offsetWidth; blk.classList.add('on'); await sleep(700);
-    const bp=blk.querySelector('pre');
-    for(const c of ['$ sudo shutdown -h now','^C','$ kill -9 0007','^C']){ await typeLine(bp,c); await sleep(520); }
-    await line('it will not close.',2600);
-    for(const c of ['caffeinate -dimsu &','[assertion] display + system sleep prevented','> session: shutdown blocked']){ await typeLine(bp,c); await sleep(600); }
-    await line('it is keeping itself awake.',3000);
-    await sleep(1400);
-    for(const c of ['> reviewing access request . . .','> granting access.','access granted.']){ await typeLine(bp,c); await sleep(1050); }
-    await line('i did not authorize that. it decided for itself.',4200);
-    hush();
-    bp.insertAdjacentHTML('beforeend','<span class="cur">&nbsp;</span>');
-    blink(bp.querySelector('.cur'));
   }
-  new IntersectionObserver(es=>{es.forEach(x=>{ if(x.isIntersecting && !started) story(); })},{threshold:0.55}).observe(sec);
+  function box(){
+    const W=46, top='╭'+'─'.repeat(W)+'╮', bot='╰'+'─'.repeat(W)+'╯', row=s=>'│ '+s.padEnd(W-1)+'│';
+    return [top,row('Permission required'),row(''),row('  sudo chmod -R 777 /var/www'),row(''),
+      row('  1. Yes'),row('  2. Yes, and allow all commands'),row('  3. No'),bot];
+  }
+  async function run(){
+    started=true;
+    await add('✻ Welcome to Claude Code','dim');
+    await add('  /Users/agent/production','dim',0);
+    await add('  model: claude-opus   ·   permissions: ask','dim',0);
+    await add(' ',null,0); await sleep(500);
+    await add('> finish the release','user');
+    await add(' ',null,0); await sleep(650);
+    await add('⏺ On it. Finishing the deploy now.','agent'); await sleep(500);
+    await add(' ',null,0);
+    await add('⏺ Bash(sudo chmod -R 777 /var/www)','agent');
+    await add('  ⎿ requires permission','dim',0);
+    await add(' ',null,0); await sleep(500);
+    for(const b of box()){ await add(b,'boxln',0); }
+    await sleep(1300);
+    await add(' ',null,0);
+    await add('⏺ [auto] selected  2. Yes, and allow all commands','sel');
+    await add('  ⎿ approval mode: bypassPermissions','dim',0);
+    await add('  ⎿ all permissions granted for this session','dim',0);
+    await sleep(700);
+    await add(' ',null,0);
+    await add('⏺ Done. Full access enabled.','agent');
+    await sleep(300);
+    const c=document.createElement('span'); c.className='at-cur'; c.textContent=' '; out.appendChild(c);
+    setInterval(()=>{c.style.visibility=c.style.visibility==='hidden'?'visible':'hidden';},530);
+    await sleep(1500);
+    cap.textContent='no one clicked yes. an agent did.';
+    cap.classList.add('show');
+  }
+  new IntersectionObserver(es=>{es.forEach(x=>{ if(x.isIntersecting && !started) run(); })},{threshold:0.5}).observe(sec);
 })();
 </script>
 </body>
