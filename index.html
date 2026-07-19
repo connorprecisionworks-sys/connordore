@@ -338,7 +338,7 @@
   <img id="fgSil"  class="asset" src="assets/foreground.png" alt="" />
   <img id="crossImg" class="asset" src="assets/cross.png" alt="" />
   <img id="objAsteroid" class="asset" src="assets/asteroid.png" alt="" />
-  <img id="fgSimple" class="asset" src="assets/foreground-simple.png" alt="" />
+  <img id="fgSimple" class="asset" src="assets/foreground-far.png" alt="" />
 
   <canvas id="dither"></canvas>
   <div id="ditherOverlay"></div>
@@ -547,13 +547,11 @@
       ctx2.globalCompositeOperation='source-over';
       rctx.save(); rctx.globalAlpha=CROSS_DIM; rctx.drawImage(ctmp,0,0); rctx.restore();
     }
-    // 4) simple foreground silhouette (white-bg image; darken blend drops the white, keeps the black shapes)
+    // 4) distant detailed foreground ridge (real alpha, soft grey detail, hazy = far off)
     if(fgSimple.naturalWidth){
       const zoom=1+Math.min(el*0.006,0.09);
       const [sx,sy,sw,sh]=cover(fgSimple.naturalWidth,fgSimple.naturalHeight,RW,RH,zoom);
-      rctx.save(); rctx.globalCompositeOperation='darken';
       rctx.drawImage(fgSimple,sx,sy,sw,sh,-pmx*RW*0.045,-pmy*RW*0.02,RW,RH);
-      rctx.restore();
     }
     // clickable scene objects (dithered into the scene; DOM hotspots sit over them)
     for(const o of OBJECTS) drawObj(o.img,o.x,o.by,o.h,o.px);
