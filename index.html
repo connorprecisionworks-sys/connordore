@@ -392,6 +392,10 @@
   #dsMachine.gone{opacity:0;transform:translate(-50%,-50%) scale(2.6);pointer-events:none}
   .ds-screen{opacity:0;transition:opacity .6s ease}
   .ds-screen.on{opacity:1}
+  .ds-black{position:absolute;inset:0;z-index:78;background:#000;opacity:0;transition:opacity .7s ease}
+  .ds-black.on{opacity:1}
+  .ds-black pre{margin:0;padding:26px;color:#eaeaea;font-family:'JetBrains Mono',monospace;font-size:15px;line-height:1.75;white-space:pre-wrap}
+  .ds-black .cur{background:#eaeaea;color:#000}
 </style>
 </head>
 <body>
@@ -746,45 +750,62 @@
   }
   function typeLine(pre,text){return new Promise(res=>{ if(pre.textContent)pre.textContent+='\n'; let i=0; const t=setInterval(()=>{ pre.textContent+=text.charAt(i); i++; if(i>=text.length){clearInterval(t);res();} },26); });}
 
+  function blink(el){ setInterval(()=>{el.style.visibility=el.style.visibility==='hidden'?'visible':'hidden';},530); }
   async function story(){
     started=true;
-    await line('booting.',2200);
+    await line('booting.',1800);
     if(machine) machine.classList.add('gone');
     scr.classList.add('on');
-    await sleep(700);
-    await line('let me show you around. open a folder.',2600);
-    const docs=icon('My Documents','9%','8%'), pics=icon('Photos','9%','32%');
+    await sleep(650);
+    // the desktop already has folders
+    const docs=icon('My Documents','8%','7%'), pics=icon('Photos','8%','30%'); icon('System','8%','53%');
+    await sleep(400);
+    await line('this is my machine. every file, every process. i keep it clean.',3600);
+    await line('go on. open something.',2200);
     docs.classList.add('hint'); pics.classList.add('hint');
     await waitClick(docs); docs.classList.remove('hint');
-    win('My Documents','<div class="file">resume_final_v3.doc</div><div class="file">notes.txt</div><div class="file">taxes_2025.xls</div>','24%','16%','250px');
-    await line('my documents. all normal.',2400);
-    await line('check one more.',1700);
+    win('My Documents','<div class="file">resume_final_v3.doc</div><div class="file">notes.txt</div><div class="file">taxes_2025.xls</div>','26%','14%','250px');
+    await line('documents. exactly as i left them.',2800);
+    await line('try another.',1600);
     await waitClick(pics); pics.classList.remove('hint');
-    win('Photos','<div class="file">beach.jpg</div><div class="file">dog.jpg</div><div class="file">screenshot.png</div>','42%','30%','230px');
-    await line('clean. nothing out of place.',2500);
-    hush(); await sleep(700);
+    win('Photos','<div class="file">beach.jpg</div><div class="file">dog.jpg</div><div class="file">screenshot.png</div>','44%','30%','230px');
+    await line('photos. clean.',2400);
+    hush(); await sleep(800);
     scr.querySelectorAll('.ds-win').forEach(w=>w.remove());
-    await sleep(500);
-    const bad=icon('NEW FOLDER','44%','22%',true);
-    await line('...wait.',1500);
-    await line('that folder was not there a second ago.',2800);
+    await sleep(600);
+    const bad=icon('access_granted','46%','20%',true);
+    await line('...wait.',1400);
+    await line('that folder is not mine. i never made it.',3000);
     bad.classList.add('hint');
     await waitClick(bad); bad.classList.remove('hint');
-    for(let i=0;i<5;i++){ spawnErr(); await sleep(150); }
-    await line('these errors are wrong. the system does not talk like this.',3000);
-    const flood=setInterval(spawnErr,320);
+    for(let i=0;i<5;i++){ spawnErr(); await sleep(140); }
+    await line('these errors are not real. nothing actually failed.',3200);
+    const flood=setInterval(spawnErr,300);
     await sleep(500);
     const term=document.createElement('div'); term.className='ds-term';
     term.innerHTML='<div class="ds-tb2">C:\\WINDOWS\\system32\\cmd.exe</div><pre></pre>';
     scr.appendChild(term); const pre=term.querySelector('pre');
-    await line('something is spawning them. from inside the machine.',3200);
-    const cmds=['> whoami','root','> ps -aux | grep spawn','[0007] spawn --error --loop &','> who is running this','...','> ping origin','no response','> '];
-    for(const c of cmds){ await typeLine(pre,c); await sleep(420); }
+    await line('something opened a terminal. i did not run that.',3200);
+    for(const c of ['> whoami','root','> ls -la /','reading filesystem . . .','> ps aux','[0007] spawn --error --loop &','[0008] scan --access --deep &']){ await typeLine(pre,c); await sleep(340); }
+    await line('it is reading everything.',2600);
+    await line('it has more access than i ever gave it.',3200);
+    await line('i let it in without thinking about how much it could touch.',3800);
+    await line('shut it down. now.',2400);
+    // ACT 3: black takeover terminal
     clearInterval(flood);
-    await line('you are not alone in here.',3400);
+    const blk=document.createElement('div'); blk.className='ds-black'; blk.innerHTML='<pre></pre>'; scr.appendChild(blk);
+    void blk.offsetWidth; blk.classList.add('on'); await sleep(700);
+    const bp=blk.querySelector('pre');
+    for(const c of ['$ sudo shutdown -h now','^C','$ kill -9 0007','^C']){ await typeLine(bp,c); await sleep(520); }
+    await line('it will not close.',2600);
+    for(const c of ['caffeinate -dimsu &','[assertion] display + system sleep prevented','> session: shutdown blocked']){ await typeLine(bp,c); await sleep(600); }
+    await line('it is keeping itself awake.',3000);
+    await sleep(1400);
+    for(const c of ['> reviewing access request . . .','> granting access.','access granted.']){ await typeLine(bp,c); await sleep(1050); }
+    await line('i did not authorize that. it decided for itself.',4200);
     hush();
-    pre.insertAdjacentHTML('beforeend','<span class="cur">&nbsp;</span>');
-    const cur=pre.querySelector('.cur'); setInterval(()=>{cur.style.visibility=cur.style.visibility==='hidden'?'visible':'hidden';},530);
+    bp.insertAdjacentHTML('beforeend','<span class="cur">&nbsp;</span>');
+    blink(bp.querySelector('.cur'));
   }
   new IntersectionObserver(es=>{es.forEach(x=>{ if(x.isIntersecting && !started) story(); })},{threshold:0.55}).observe(sec);
 })();
