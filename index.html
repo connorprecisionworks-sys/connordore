@@ -386,6 +386,35 @@
     font-family:'Tahoma',Geneva,sans-serif;font-size:clamp(1rem,2.1vw,1.5rem);color:#f5e000;
     text-shadow:0 2px 4px #000,0 0 2px #000;opacity:0;transition:opacity .4s ease;letter-spacing:.01em}
   .ds-sub.show{opacity:1}
+  /* ---- polished UI overrides ---- */
+  .ds-screen{background:radial-gradient(120% 120% at 50% 40%,#0f9a9a,#0a6f6f)}
+  .ds-icon{width:92px;padding:8px 6px;gap:7px}
+  .ds-icon .ds-ln{font-size:12px}
+  .ds-icon.sel{background:rgba(0,0,90,.35);border-color:rgba(255,255,255,.5)}
+  .ds-fi{width:46px;height:37px;border-radius:2px 3px 2px 2px;background:linear-gradient(#ffd867,#eec14f);box-shadow:1px 1px 0 rgba(0,0,0,.35)}
+  .ds-fi::before{width:20px;height:8px;top:-8px;left:2px;border-radius:2px 4px 0 0;background:linear-gradient(#ffd867,#f3c657)}
+  .ds-fi.bad{background:linear-gradient(#b9b9b9,#8f8f8f)}.ds-fi.bad::before{background:linear-gradient(#b9b9b9,#9a9a9a)}
+  .ds-win{min-width:280px;box-shadow:1px 1px 0 #000,4px 5px 14px rgba(0,0,0,.5)}
+  .ds-tb{padding:4px 4px 4px 6px;font-size:13px}
+  .ds-tb button{width:18px;height:16px;font-weight:bold}
+  .ds-menu{display:flex;gap:14px;padding:3px 8px;font-size:12px;color:#000;border-bottom:1px solid #808080}
+  .ds-menu span{text-decoration:underline}
+  .ds-bd{margin:6px;padding:10px;background:#fff;border:2px solid #808080;border-right-color:#fff;border-bottom-color:#fff;min-height:80px}
+  .ds-bd .file{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:13px}
+  .ds-bd .file::before{content:'';width:16px;height:16px;flex:0 0 auto;background:#fff;border:1px solid #808080;box-shadow:inset -3px -3px 0 #dcdcdc}
+  .ds-taskbar{height:32px;padding:3px 5px;box-shadow:inset 0 1px 0 #e8e8e8}
+  .ds-start{display:inline-flex;align-items:center;gap:6px;padding:3px 12px 3px 6px;font-size:13px}
+  .ds-start::before{content:'';width:16px;height:16px;display:inline-block;border:1px solid #2a2a2a;
+    background:conic-gradient(from 90deg at 50% 50%,#e23b30 0 25%,#39a84a 0 50%,#2f7fd6 0 75%,#f3c24a 0 100%)}
+  .ds-clock{font-size:12px;box-shadow:inset 1px 1px 0 #808080}
+  .ds-err{width:320px}
+  .ds-err .msg{font-size:12.5px}
+  /* blue + red sticky notes (brand echo) */
+  .ds-note{position:absolute;width:70px;height:70px;z-index:6;box-shadow:2px 4px 8px rgba(0,0,0,.45);pointer-events:none}
+  .ds-note::after{content:'';position:absolute;left:12px;right:12px;top:18px;height:2px;background:rgba(255,255,255,.55);
+    box-shadow:0 9px 0 rgba(255,255,255,.45),0 18px 0 rgba(255,255,255,.35),0 27px 0 rgba(255,255,255,.28)}
+  .ds-note.blue{background:linear-gradient(#3f8fe0,#2f7fd6);top:12px;left:12px;transform:rotate(-5deg)}
+  .ds-note.red{background:linear-gradient(#e2574b,#d64a3f);top:12px;right:12px;transform:rotate(5deg)}
   /* establishing shot: the actual brand computer, then zoom into the screen */
   #dsMachine{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:min(46vw,440px);z-index:75;
     image-rendering:pixelated;filter:drop-shadow(0 12px 44px rgba(0,0,0,.6));transition:opacity .8s ease,transform .9s ease}
@@ -470,6 +499,8 @@
       <img id="dsMachine" src="assets/computer.png" alt="" onerror="this.style.display='none'">
       <div class="ds-screen" id="dsScreen">
         <div class="ds-desktop" id="dsDesktop"></div>
+        <div class="ds-note blue"></div>
+        <div class="ds-note red"></div>
         <div class="ds-taskbar"><span class="ds-start">Start</span><span class="ds-clock" id="dsClock"></span></div>
       </div>
       <div class="ds-sub" id="dsSub"></div>
@@ -753,24 +784,36 @@
   function blink(el){ setInterval(()=>{el.style.visibility=el.style.visibility==='hidden'?'visible':'hidden';},530); }
   async function story(){
     started=true;
-    await line('booting.',1800);
+    // ENTER: the full computer is on screen; click anywhere to go in
+    say('click the computer to power it on.');
+    await new Promise(res=>{ const h=()=>{sec.removeEventListener('click',h);res();}; sec.addEventListener('click',h); });
+    hush(); await sleep(200);
     if(machine) machine.classList.add('gone');
     scr.classList.add('on');
-    await sleep(650);
-    // the desktop already has folders
-    const docs=icon('My Documents','8%','7%'), pics=icon('Photos','8%','30%'); icon('System','8%','53%');
-    await sleep(400);
+    await sleep(700);
+    const NORMAL={
+      'My Documents':'<div class="ds-menu"><span>F</span>ile <span>E</span>dit <span>V</span>iew</div><div class="file">resume_final_v3.doc</div><div class="file">notes.txt</div><div class="file">taxes_2025.xls</div>',
+      'Photos':'<div class="ds-menu"><span>F</span>ile <span>E</span>dit <span>V</span>iew</div><div class="file">beach.jpg</div><div class="file">dog.jpg</div><div class="file">screenshot.png</div>',
+      'System':'<div class="ds-menu"><span>F</span>ile <span>E</span>dit <span>V</span>iew</div><div class="file">config.sys</div><div class="file">kernel32.dll</div><div class="file">autoexec.bat</div>'
+    };
+    let opened=0, waiters=[];
+    const noteOpen=()=>{ opened++; waiters=waiters.filter(w=>{ if(opened>=w.n){w.r();return false;} return true; }); };
+    const waitOpens=n=>new Promise(r=>{ opened>=n ? r() : waiters.push({n,r}); });
+    Object.keys(NORMAL).forEach((name,i)=>{
+      const ic=icon(name,'8%',(7+i*23)+'%');
+      ic.addEventListener('click',()=>{
+        ic.classList.add('sel');
+        if(ic.dataset.open) return; ic.dataset.open='1'; ic.classList.remove('hint');
+        win(name,NORMAL[name],(24+i*11)+'%',(14+i*9)+'%','260px'); noteOpen();
+      });
+    });
     await line('this is my machine. every file, every process. i keep it clean.',3600);
-    await line('go on. open something.',2200);
-    docs.classList.add('hint'); pics.classList.add('hint');
-    await waitClick(docs); docs.classList.remove('hint');
-    win('My Documents','<div class="file">resume_final_v3.doc</div><div class="file">notes.txt</div><div class="file">taxes_2025.xls</div>','26%','14%','250px');
-    await line('documents. exactly as i left them.',2800);
-    await line('try another.',1600);
-    await waitClick(pics); pics.classList.remove('hint');
-    win('Photos','<div class="file">beach.jpg</div><div class="file">dog.jpg</div><div class="file">screenshot.png</div>','44%','30%','230px');
-    await line('photos. clean.',2400);
-    hush(); await sleep(800);
+    await line('open a couple of folders. take a look around.',2800);
+    document.querySelectorAll('#dsDesktop .ds-icon').forEach(i=>i.classList.add('hint'));
+    await waitOpens(2);
+    document.querySelectorAll('#dsDesktop .ds-icon').forEach(i=>i.classList.remove('hint'));
+    await line('all normal. exactly where i left everything.',3000);
+    hush(); await sleep(900);
     scr.querySelectorAll('.ds-win').forEach(w=>w.remove());
     await sleep(600);
     const bad=icon('access_granted','46%','20%',true);
