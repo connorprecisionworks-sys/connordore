@@ -26,13 +26,6 @@
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{overflow-x:hidden;background:#000;scroll-behavior:smooth}
   body{font-family:'VT323',monospace}
-  /* CD cold-open overlay */
-  #preintro{position:fixed;inset:0;z-index:500;background:#000;display:flex;align-items:center;justify-content:center;
-    animation:preOut .9s ease 2.4s forwards}
-  #preintro img{width:min(46vw,520px);height:auto;opacity:0;image-rendering:pixelated;
-    animation:cdIn 1s ease .35s forwards}
-  @keyframes cdIn{to{opacity:1}}
-  @keyframes preOut{to{opacity:0;visibility:hidden}}
   #stage{position:fixed;inset:0}
   #dither{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;display:block}
   #dither.fallback{filter:grayscale(1) contrast(1.35)}
@@ -58,8 +51,12 @@
   /* animated name straight from the shader lab; screen blend drops the black.
      Must live at scene level (not inside #hud) so it can blend with the canvas behind it. */
   /* glowing shader-lab name clip: hidden in favor of the editorial masthead (remove display:none to bring it back) */
-  #nameVid{display:none;position:absolute;left:50%;top:37%;transform:translate(-50%,-50%);
-    width:min(80vw,1080px);height:auto;z-index:7;mix-blend-mode:screen;pointer-events:none}
+  /* shader-lab name: black bg dropped by screen blend, forced monochrome, fades in at 3s */
+  #nameVid{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%) scale(1.02);
+    width:min(86vw,1180px);height:auto;z-index:7;mix-blend-mode:screen;pointer-events:none;
+    filter:grayscale(1) contrast(1.12) brightness(1.06);
+    opacity:0;transition:opacity 1.1s ease,transform 1.1s ease}
+  #nameVid.on{opacity:.92;transform:translate(-50%,-50%) scale(1)}
   /* signed signature: signature font, inked as dither dots, drawn on left-to-right */
   #signature{position:absolute;left:50%;top:41%;transform:translate(-50%,-50%) rotate(-4deg);z-index:8;
     font-family:'Mr Dafoe',cursive;font-size:clamp(3.4rem,11vw,7.4rem);white-space:nowrap;line-height:1;pointer-events:none;
@@ -277,14 +274,17 @@
   .contact-page{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:120px 26px 60px}
   .cp-inner{max-width:940px;margin:0 auto;width:100%;display:grid;grid-template-columns:300px 1fr;gap:46px;align-items:center}
   .cp-photo{aspect-ratio:4/5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.14);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
-  .cp-photo canvas{width:100%;height:100%;object-fit:cover;image-rendering:pixelated;display:block}
-  .cp-photo.noimg::after{content:'DROP PHOTO -> assets/connor.jpg';font-family:'Press Start 2P',monospace;font-size:8px;color:#5f5f5f;text-align:center;padding:20px;line-height:1.9}
+  .cp-photo canvas{width:100%;height:100%;object-fit:cover;image-rendering:auto;display:block}
+  .cp-photo.noimg::after{content:'DROP PHOTO -> assets/connor.jpeg';font-family:'Press Start 2P',monospace;font-size:8px;color:#5f5f5f;text-align:center;padding:20px;line-height:1.9}
   .cp-name{font-family:'Basement Grotesque','Arial Black',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3.4rem);color:#fff;letter-spacing:-.02em;margin-bottom:14px}
   .cp-line{font-family:'VT323',monospace;font-size:1.45rem;color:#9a9a9a;margin-bottom:30px}
   .cp-links{display:flex;flex-direction:column;max-width:520px}
   .cp-links a{font-family:'VT323',monospace;font-size:1.5rem;color:#d6d6d6;padding:11px 2px;border-top:1px solid rgba(255,255,255,.12);transition:color .15s,padding .15s}
   .cp-links a:last-child{border-bottom:1px solid rgba(255,255,255,.12)}
   .cp-links a:hover{color:#fff;padding-left:12px}
+  .cp-links a{position:relative}
+  .cp-links a::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:#fff;transform:scaleY(0);transform-origin:center;transition:transform .18s ease}
+  .cp-links a:hover::before{transform:scaleY(.55)}
   .cp-foot{max-width:940px;margin:44px auto 0;width:100%;font-family:'Press Start 2P',monospace;font-size:9px;color:#5b5b5b;letter-spacing:.06em}
   @media(max-width:760px){.cp-inner{grid-template-columns:1fr;gap:26px}.cp-photo{max-width:250px}}
   @media(max-width:820px){#topnav .nl{display:none}.two,.sig{grid-template-columns:1fr}.lvl{grid-template-columns:1fr;gap:8px}.lvl .ln,.lvl .st{display:none}.panel{padding:24px}}
@@ -445,7 +445,6 @@
 </head>
 <body>
 <!-- CD cold-open: black screen, CD fades in, holds, fades out, reveals the mountain -->
-<div id="preintro"><img id="cdIntro" src="assets/cd.png" alt="" onerror="this.style.display='none'"></div>
 
 <div id="stage">
   <!-- LAYER SOURCES (drawn into the dithered canvas). Swap srcs to rebrand. -->
@@ -466,7 +465,7 @@
   <video id="crossVid" src="assets/cross.mp4" autoplay muted loop playsinline></video>
 
   <!-- animated name (scene-level so the screen blend can drop its black) -->
-  <video id="nameVid" src="connor-name-v6.webm" autoplay loop muted playsinline></video>
+  <video id="nameVid" src="connor-name-v6.webm" muted playsinline preload="auto"></video>
 
   <!-- editorial name masthead (top-left) -->
   <div id="masthead">
@@ -501,7 +500,7 @@
         <p class="cp-line">just reach out.</p>
         <div class="cp-links">
           <a href="https://github.com/connorprecisionworks-sys" target="_blank" rel="noopener">github</a>
-          <a href="LINKEDIN_URL" target="_blank" rel="noopener">linkedin</a>
+          <a href="https://www.linkedin.com/in/connor-dore-9205b23a9/" target="_blank" rel="noopener">linkedin</a>
           <a href="tel:+15614011623">561 401 1623</a>
           <a href="mailto:connor.precisionworks@gmail.com">connor.precisionworks@gmail.com</a>
         </div>
@@ -510,22 +509,14 @@
     <div class="cp-foot">connordore.com</div>
   </section>
 
-  <section id="agentterm">
-    <div class="at-wrap">
-      <div class="at-term"><div class="at-out" id="atOut"></div></div>
-      <div class="at-cap" id="atCap"></div>
-    </div>
-  </section>
   </div>
 </div>
 
 <div id="cursor"><i></i></div>
-<canvas id="infect"></canvas>
 
 <script>
 (function(){
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  setTimeout(()=>{const p=document.getElementById('preintro');if(p)p.style.display='none';},3600); // fully remove CD cold-open
   const DITHER_STRENGTH=0.76;   // 0 clean .. 1 full dither
   let CROSS_X=0.22, CROSS_BASE=0.60, CROSS_DIM=0.70; const CROSS_H=0.30; // cross x, base y, brightness (let = draggable in edit mode)
 
@@ -736,21 +727,31 @@
     const holder=document.querySelector('.cp-photo'); if(!holder)return;
     const p=new Image();
     p.onload=()=>{
-      const PW=240, PH=Math.max(1,Math.round(PW*p.height/p.width));
+      const SAT=0.30;      // how much original color survives (0 = grey, 1 = full color)
+      const CONTRAST=0.86; // <1 flattens, keeps it soft
+      const FADE=0.10;     // veil toward mid grey so nothing reads punchy
+      const PW=760, PH=Math.max(1,Math.round(PW*p.height/p.width));
       const c=document.createElement('canvas'); c.width=PW; c.height=PH;
       const cx=c.getContext('2d',{willReadFrequently:true});
       cx.drawImage(p,0,0,PW,PH);
       try{
         const d=cx.getImageData(0,0,PW,PH),s=d.data,o=cx.createImageData(PW,PH),od=o.data;
-        for(let y=0;y<PH;y++){const row=(y&7)*8;for(let x=0;x<PW;x++){const i=(y*PW+x)*4;
-          let lum=(s[i]*0.299+s[i+1]*0.587+s[i+2]*0.114)/255; lum=Math.min(1,Math.max(0,(lum-0.5)*1.3+0.5));
-          const v=lum>B[row+(x&7)]?232:12; od[i]=od[i+1]=od[i+2]=v; od[i+3]=255;}}
+        for(let i=0;i<s.length;i+=4){
+          const lum=s[i]*0.299+s[i+1]*0.587+s[i+2]*0.114;
+          for(let k=0;k<3;k++){
+            let v=lum+(s[i+k]-lum)*SAT;      // desaturate toward muted
+            v=(v-128)*CONTRAST+128;          // flatten the contrast
+            v=v+(140-v)*FADE;                // lift into a soft mid range
+            od[i+k]=Math.min(255,Math.max(0,v));
+          }
+          od[i+3]=255;
+        }
         cx.putImageData(o,0,0);
       }catch(e){}
       holder.appendChild(c);
     };
     p.onerror=()=>holder.classList.add('noimg');
-    p.src='assets/connor.jpg';
+    p.src='assets/connor.jpeg';
   })();
 
 })();
@@ -838,6 +839,45 @@
     requestAnimationFrame(frame);
   }
   new IntersectionObserver(es=>{es.forEach(x=>{ if(x.isIntersecting && !started) run(); })},{threshold:0.5}).observe(sec);
+})();
+</script>
+
+<script>
+/* shader-lab name enters 3s after the page opens, plays once, holds on its last frame */
+(function(){
+  const v=document.getElementById('nameVid'); if(!v) return;
+  v.currentTime=0;
+  setTimeout(()=>{
+    v.classList.add('on');
+    const p=v.play();
+    if(p&&p.catch) p.catch(()=>{});   // autoplay blocked: the still frame still shows
+  },3000);
+})();
+</script>
+
+<script>
+(function(){
+  const GL='!<>-_\\/[]{}=+*^?#01';
+  document.querySelectorAll('.cp-links a').forEach(a=>{
+    const real=a.textContent; let raf=null, t=0;
+    a.addEventListener('mouseenter',()=>{
+      cancelAnimationFrame(raf); t=0;
+      const step=()=>{
+        t++;
+        let out='';
+        for(let i=0;i<real.length;i++){
+          if(i < t*1.4) out+=real[i];
+          else if(real[i]===' ') out+=' ';
+          else out+=GL[(Math.random()*GL.length)|0];
+        }
+        a.textContent=out;
+        if(t*1.4 < real.length) raf=requestAnimationFrame(step);
+        else a.textContent=real;
+      };
+      raf=requestAnimationFrame(step);
+    });
+    a.addEventListener('mouseleave',()=>{cancelAnimationFrame(raf); a.textContent=real;});
+  });
 })();
 </script>
 </body>
