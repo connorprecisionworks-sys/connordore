@@ -249,6 +249,28 @@
   .foot .c{font-family:'Press Start 2P',monospace;font-size:9px;color:#5b5b5b}
   .foot .fl{display:flex;gap:20px;font-size:1.2rem}
   .foot .fl a{color:#9a9a9a}.foot .fl a:hover{color:var(--accent)}
+  /* ---- work / projects ---- */
+  .work{max-width:940px;margin:0 auto;width:100%;padding:130px 26px 40px}
+  .work-hd{font-family:'Press Start 2P',monospace;font-size:9px;color:#5b5b5b;letter-spacing:.18em;
+    padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.14);margin-bottom:0}
+  .prj{display:grid;grid-template-columns:52px 1fr 172px;gap:28px;padding:34px 0;
+    border-bottom:1px solid rgba(255,255,255,.14);align-items:start}
+  .prj .idx{font-family:'Press Start 2P',monospace;font-size:11px;color:#4f4f4f;padding-top:6px}
+  .prj h3{font-family:'Basement Grotesque','Arial Black',sans-serif;font-weight:900;
+    font-size:clamp(1.5rem,3.2vw,2.1rem);color:#fff;letter-spacing:-.02em;line-height:1;margin-bottom:9px}
+  .prj .what{font-family:'VT323',monospace;font-size:1.32rem;color:#d6d6d6;line-height:1.32;margin-bottom:13px}
+  .prj p{font-family:'VT323',monospace;font-size:1.16rem;color:#8a8a8a;line-height:1.46;max-width:60ch}
+  .prj .meta{display:flex;flex-direction:column;gap:11px;padding-top:7px}
+  .prj .st{font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:.1em;line-height:1.7;
+    color:#8a8a8a;border:1px solid rgba(255,255,255,.16);padding:6px 8px;align-self:start}
+  .prj .st.live{color:#ededed;border-color:rgba(255,255,255,.42)}
+  .prj .stack{font-family:'VT323',monospace;font-size:1.02rem;color:#5f5f5f;line-height:1.4}
+  .prj .go{font-family:'VT323',monospace;font-size:1.16rem;color:#d6d6d6;border-bottom:1px solid rgba(255,255,255,.28);
+    align-self:start;transition:color .15s,border-color .15s}
+  .prj .go:hover{color:#fff;border-color:#fff}
+  .prj .soon{font-family:'VT323',monospace;font-size:1.16rem;color:#6f6f6f;align-self:start}
+  @media(max-width:820px){.work{padding:90px 22px 30px}.prj{grid-template-columns:34px 1fr;gap:16px}
+    .prj .meta{grid-column:2;flex-direction:row;flex-wrap:wrap;align-items:center;gap:14px;padding-top:4px}}
   .rev{opacity:0;transform:translateY(20px);transition:.6s ease}
   .rev.in{opacity:1;transform:none}
   /* one-pager: about + booking */
@@ -492,6 +514,7 @@
 
   <div class="scene-spacer"></div>
   <div class="content">
+
   <section class="contact-page" id="top">
     <div class="cp-inner">
       <div class="cp-photo"></div>
@@ -503,10 +526,85 @@
           <a href="https://www.linkedin.com/in/connor-dore-9205b23a9/" target="_blank" rel="noopener">linkedin</a>
           <a href="tel:+15614011623">561 401 1623</a>
           <a href="mailto:connor.precisionworks@gmail.com">connor.precisionworks@gmail.com</a>
+          <a href="https://cal.com/connor-dore" target="_blank" rel="noopener">book a call</a>
         </div>
       </div>
     </div>
     <div class="cp-foot">connordore.com</div>
+  </section>
+
+  <section class="work" id="work">
+    <div class="work-hd">SELECTED WORK</div>
+
+    <div class="prj rev">
+      <div class="idx">01</div>
+      <div>
+        <h3>Antfarm</h3>
+        <div class="what">A desktop operating system for building software with AI agents.</div>
+        <p>Working across Claude Code and Cowork meant context lived in a dozen terminal windows and nothing knew what anything else was doing. Antfarm reads my project notes as its source of truth and layers live agent sessions, task state, and token usage on top, so every project has one place showing its brief, roadmap, and what the agents are doing right now. Every transcript parser is built to degrade rather than crash, since the formats it reads are internal and undocumented. It built this site.</p>
+      </div>
+      <div class="meta">
+        <div class="st live">IN BUILD</div>
+        <div class="stack">Tauri · Rust · React · Claude</div>
+        <div class="soon">in development</div>
+      </div>
+    </div>
+
+    <div class="prj rev">
+      <div class="idx">02</div>
+      <div>
+        <h3>Lodestar PAC</h3>
+        <div class="what">Ranking every near-Earth asteroid by what it is worth and how hard it is to reach.</div>
+        <p>Scientists have confirmed the composition of only a few hundred of the roughly 41,900 known near-Earth asteroids. Lodestar trains on the confirmed ones to predict what the rest are made of, around 82% accuracy under leave-one-out validation, and attaches a calibrated confidence score to every guess. It computes real launch windows with a validated two-body Lambert solver, and renders each object's actual NASA shape model in 3D with an animated transfer flythrough. The interface never blurs a confirmed measurement into an educated guess.</p>
+      </div>
+      <div class="meta">
+        <div class="st live">LIVE</div>
+        <div class="stack">Python · scikit-learn · React · Three.js</div>
+        <a class="go" href="https://lodestar-pac.vercel.app/research/" target="_blank" rel="noopener">lodestar-pac.vercel.app</a>
+      </div>
+    </div>
+
+    <div class="prj rev">
+      <div class="idx">03</div>
+      <div>
+        <h3>Prmpt</h3>
+        <div class="what">A storefront that turns "comment and I'll send you the prompt" into booked clients.</div>
+        <p>Creators give away prompts to farm engagement and get nothing back but a comment count. Prmpt hands them their own audience instead of a shared community feed: prompt packs released like albums, versioned updates that push to everyone who saved them, analytics on who actually ran what, and a claim flow that lets a stranger use a prompt anonymously before converting in one tap. The interesting problem is not distribution, it is detecting which of those hands going up is a buyer.</p>
+      </div>
+      <div class="meta">
+        <div class="st live">SHIPPING</div>
+        <div class="stack">Next.js · Supabase · Claude</div>
+        <a class="go" href="https://useprmpt.com" target="_blank" rel="noopener">useprmpt.com</a>
+      </div>
+    </div>
+
+    <div class="prj rev">
+      <div class="idx">04</div>
+      <div>
+        <h3>Lexx AI</h3>
+        <div class="what">Legal AI for construction litigation, built with practicing attorneys.</div>
+        <p>A construction delay claim buries a litigator in contracts, RFIs, daily logs, schedules, and years of email. Lexx ingests the case file and returns a cited timeline, a plain-English read on what actually drove the delay across baseline and as-built schedules, and an argument scaffold for the claim type. Generic legal models treat an RFI and a CPM schedule as opaque text; Lexx parses them as the structured artifacts they are. Every claim it makes links back to a source document, because a hallucinated citation ends a career.</p>
+      </div>
+      <div class="meta">
+        <div class="st">PRE-BUILD</div>
+        <div class="stack">Next.js · Supabase · pgvector · Claude</div>
+        <a class="go" href="https://precisionworksai.com" target="_blank" rel="noopener">precisionworksai.com</a>
+      </div>
+    </div>
+
+    <div class="prj rev">
+      <div class="idx">05</div>
+      <div>
+        <h3>Slate</h3>
+        <div class="what">The back office that runs the money side of an independent tutor's business.</div>
+        <p>Independent tutors run a real business on text messages and a notes app: a different rate for every family, travel between sessions, parents chased for payment with copy-paste reminders. Slate handles the money end to end, flexible rate tiers, session logging with billable travel, invoices that track sent-versus-paid, Stripe payments that mark themselves paid, cancellations that roll to credit or refund, and prepaid packages. Parents get a portal scoped to just their child, and a send-a-link booking flow turns an offered slot into a billable session with no back-and-forth. Most of it was built by an unattended loop that code-reviews and browser-QAs every feature against a live database before it ships.</p>
+      </div>
+      <div class="meta">
+        <div class="st live">SHIPPING</div>
+        <div class="stack">Next.js · Supabase · Stripe · Claude</div>
+        <a class="go" href="https://slatetutor.com" target="_blank" rel="noopener">slatetutor.com</a>
+      </div>
+    </div>
   </section>
 
   </div>
