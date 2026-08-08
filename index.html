@@ -93,7 +93,7 @@
   #scrollbar{position:fixed;top:0;left:0;height:2px;width:0;background:#d6d6d6;z-index:90}
 
   /* ===================== GATES ===================== */
-  .gates{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,4vw,56px);
+  .gates{display:grid;grid-template-columns:1fr 1fr;gap:clamp(22px,5vw,72px);align-items:start;
     padding:clamp(30px,6vh,70px) 0 clamp(40px,8vh,90px)}
   .gate{display:block;cursor:pointer;opacity:0;transform:translateY(22px);
     transition:opacity .8s var(--spring) calc(var(--d)*1ms),transform .8s var(--spring) calc(var(--d)*1ms)}
@@ -112,7 +112,14 @@
   .g-cap .n{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--dim);
     transition:color .2s ease}
   .gate:hover .g-cap .n{color:#fff}
-  .g-hint{margin-top:9px;font-family:'Press Start 2P',monospace;font-size:7px;letter-spacing:.2em;color:#3f3f3f}
+
+  .g-list{margin-top:20px;list-style:none}
+  .g-list li{padding:13px 0;border-top:1px solid var(--line)}
+  .g-list li:last-child{border-bottom:1px solid var(--line)}
+  .g-list .k{display:block;font-size:1.1rem;color:#cdcdcd}
+  .g-list .k a{border-bottom:1px solid transparent;transition:border-color .15s,color .15s}
+  .g-list .k a:hover{color:#fff;border-color:rgba(255,255,255,.34)}
+  .g-list .v{display:block;font-size:1rem;color:#6d6d6d;margin-top:5px;line-height:1.38}
 
   /* ===================== SECTIONS ===================== */
   section{scroll-margin-top:24px}
@@ -239,12 +246,23 @@
   <div class="gate" style="--d:0">
     <div class="art" data-ascii="knot23"><pre></pre></div>
     <div class="g-cap"><span class="t">WORK</span></div>
-    <div class="g-hint">DRAG TO SPIN</div>
+    <ul class="g-list">
+      <li><span class="k">Antfarm</span><span class="v">Desktop operating system for building software with AI agents. In build.</span></li>
+      <li><span class="k"><a href="https://lodestar-pac.vercel.app/research/" target="_blank" rel="noopener">Lodestar PAC</a></span><span class="v">Machine-learning ranking of near-Earth asteroids by value and mission accessibility. Live.</span></li>
+      <li><span class="k"><a href="https://useprmpt.com" target="_blank" rel="noopener">Prmpt</a></span><span class="v">Creator-owned distribution for AI prompts. Shipping.</span></li>
+      <li><span class="k"><a href="https://precisionworksai.com" target="_blank" rel="noopener">Lexx AI</a></span><span class="v">Legal AI for construction litigation, built with practicing attorneys. Pre-build.</span></li>
+      <li><span class="k"><a href="https://slatetutor.com" target="_blank" rel="noopener">Slate</a></span><span class="v">Back office and billing for independent tutors. Shipping.</span></li>
+    </ul>
   </div>
   <div class="gate" style="--d:110">
     <div class="art" data-ascii="geode"><pre></pre></div>
     <div class="g-cap"><span class="t">EXPERIENCE</span></div>
-    <div class="g-hint">DRAG TO SPIN</div>
+    <ul class="g-list">
+      <li><span class="k">Austin Christian University pitch competition</span><span class="v">Won. Prize money, and outside investor interest in the company.</span></li>
+      <li><span class="k">Business award</span><span class="v">Jupiter Christian School.</span></li>
+      <li><span class="k">Network</span><span class="v">Founders and operators who bring problems worth building for.</span></li>
+      <li><span class="k">Products in production</span><span class="v">Software running inside real businesses today, not demos.</span></li>
+    </ul>
   </div>
 </section>
 
