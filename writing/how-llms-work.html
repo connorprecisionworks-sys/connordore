@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#070707" />
+<title>One Word at a Time — Connor Dore</title>
+<meta name="description" content="A short, honest explanation of how large language models actually work, plus the four videos that will teach you the rest." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Crect x='7' y='7' width='18' height='18' fill='none' stroke='%23e8e8e8' stroke-width='2.5'/%3E%3C/svg%3E">
+<meta property="og:type" content="article">
+<meta property="og:title" content="One Word at a Time">
+<meta property="og:description" content="How large language models actually work. Short, honest, no math.">
+<meta property="og:image" content="https://connordore.com/connor-name.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     connordore.com / writing / how llms work
+     Same house rules as the front page: fully monochrome.
+     black / white / grey. any hue is a bug.
+     ============================================================ */
+  @font-face{font-family:'Basement Grotesque';src:url('../fonts/BasementGrotesqueVF.woff2') format('woff2');
+    font-weight:400 900;font-display:swap}
+
+  :root{
+    --bg:#070707;
+    --line:rgba(255,255,255,.13);
+    --line-hi:rgba(255,255,255,.40);
+    --dim:#7e7e7e;
+    --mid:#a8a8a8;
+    --spring:cubic-bezier(.22,1,.36,1);
+    --swift:cubic-bezier(.32,.72,0,1);
+    --pad:clamp(20px,5vw,60px);
+    --max:760px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth;background:var(--bg)}
+  body{background:var(--bg);color:#e8e8e8;font-family:'VT323',monospace;font-size:20px;
+    overflow-x:hidden;-webkit-text-size-adjust:100%}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 var(--pad)}
+  .rule{height:1px;background:var(--line)}
+
+  #grain{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.16;
+    background-image:radial-gradient(rgba(255,255,255,.5) .5px,transparent .6px);background-size:3px 3px}
+  #scrollbar{position:fixed;top:0;left:0;height:2px;width:0;background:#d6d6d6;z-index:90}
+
+  /* ===================== TOP BAR ===================== */
+  .topbar{position:sticky;top:0;z-index:70;background:rgba(7,7,7,.86);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .topbar .inner{max-width:var(--max);margin:0 auto;padding:14px var(--pad);
+    display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .topbar a.back{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;
+    color:var(--dim);transition:color .15s}
+  .topbar a.back:hover{color:#fff}
+  .topbar .tag{font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:.24em;color:#4f4f4f}
+
+  /* ===================== HERO ===================== */
+  .hero{padding-top:clamp(56px,11vh,120px);padding-bottom:clamp(30px,5vh,52px)}
+  .kicker{font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.34em;color:#6a6a6a;margin-bottom:26px}
+  h1{font-family:'Basement Grotesque','Arial Black',sans-serif;font-weight:900;
+    font-size:clamp(2.6rem,9vw,4.6rem);letter-spacing:-.035em;line-height:.92;color:#fff}
+  .deck{margin-top:22px;font-size:clamp(1.2rem,3.8vw,1.44rem);color:#b9b9b9;line-height:1.36;max-width:44ch}
+  .byline{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);
+    display:flex;gap:20px;flex-wrap:wrap;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;color:#5a5a5a}
+
+  /* ===================== BODY TYPE ===================== */
+  article{padding-bottom:clamp(50px,9vh,100px)}
+  .sec{padding-top:clamp(44px,7vh,80px)}
+  .sec > h2{font-family:'Basement Grotesque','Arial Black',sans-serif;font-weight:900;
+    font-size:clamp(1.6rem,5.4vw,2.35rem);letter-spacing:-.028em;line-height:1.02;color:#fff;margin-bottom:6px}
+  .sec > .num{font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.3em;
+    color:#4f4f4f;margin-bottom:14px}
+  p{font-size:clamp(1.1rem,3.3vw,1.22rem);color:#a4a4a4;line-height:1.56;margin-top:1em;max-width:62ch}
+  p strong{color:#e8e8e8;font-weight:400}
+  p em{font-style:normal;color:#d0d0d0;border-bottom:1px solid rgba(255,255,255,.18)}
+  .lead{color:#cfcfcf;font-size:clamp(1.18rem,3.6vw,1.32rem)}
+  a.link{color:#dedede;border-bottom:1px solid rgba(255,255,255,.28);transition:.15s}
+  a.link:hover{color:#fff;border-bottom-color:#fff}
+
+  .pull{margin:34px 0 0;padding:22px 0 22px 22px;border-left:2px solid var(--line-hi);
+    font-family:'Basement Grotesque','Arial Black',sans-serif;font-weight:900;
+    font-size:clamp(1.3rem,4.4vw,1.8rem);letter-spacing:-.02em;line-height:1.12;color:#efefef;max-width:30ch}
+
+  .aside{margin-top:32px;border:1px solid var(--line);padding:20px clamp(16px,3vw,24px)}
+  .aside .h{font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:.26em;color:#6a6a6a;margin-bottom:12px}
+  .aside p{margin-top:0;font-size:1.06rem;color:#8f8f8f;line-height:1.5}
+  .aside p + p{margin-top:.9em}
+
+  /* ===================== FIGURES ===================== */
+  figure{margin:38px 0 0;border:1px solid var(--line);background:rgba(255,255,255,.012)}
+  .fig-hd{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;
+    align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .fig-hd .t{font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:.24em;color:#a8a8a8}
+  .fig-hd .n{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;color:#4f4f4f}
+  .fig-b{padding:clamp(16px,3.4vw,26px)}
+  figcaption{padding:0 16px 14px;font-size:1rem;color:#6d6d6d;line-height:1.42}
+
+  /* generic small controls */
+  .ctl{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:#6a6a6a}
+  button.b{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;
+    color:#c8c8c8;background:transparent;border:1px solid var(--line);padding:8px 12px;
+    cursor:pointer;transition:.15s;min-height:34px}
+  button.b:hover{color:#fff;border-color:var(--line-hi)}
+  button.b[aria-pressed="true"]{color:#070707;background:#e0e0e0;border-color:#e0e0e0}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:2px;background:var(--line-hi);
+    width:min(240px,52vw);outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:16px;
+    background:#e0e0e0;cursor:pointer;border-radius:0}
+  input[type=range]::-moz-range-thumb{width:12px;height:16px;background:#e0e0e0;border:0;
+    cursor:pointer;border-radius:0}
+
+  /* ---- fig 1: tokenizer ---- */
+  #tokIn{width:100%;background:transparent;border:1px solid var(--line);color:#e8e8e8;
+    font-family:'VT323',monospace;font-size:1.15rem;padding:12px 14px;resize:vertical;
+    min-height:78px;line-height:1.4;outline:none}
+  #tokIn:focus{border-color:var(--line-hi)}
+  #tokOut{margin-top:16px;display:flex;flex-wrap:wrap;gap:3px}
+  .tk{font-family:'JetBrains Mono',monospace;font-size:12px;padding:5px 6px;
+    border:1px solid var(--line);color:#cacaca;white-space:pre;line-height:1.1}
+  .tk:nth-child(odd){background:rgba(255,255,255,.05)}
+  .tk:nth-child(even){background:rgba(255,255,255,.012)}
+  .tk.sp{color:#5f5f5f}
+  #tokCount{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;color:#6a6a6a;margin-top:14px}
+  #tokCount b{color:#e8e8e8;font-weight:500}
+
+  /* ---- fig 2: next token ---- */
+  #ctxLine{font-family:'JetBrains Mono',monospace;font-size:clamp(12px,3.2vw,14px);
+    color:#e2e2e2;line-height:1.7;word-break:break-word}
+  #ctxLine .cursor{display:inline-block;width:8px;height:1em;background:#e0e0e0;
+    vertical-align:-2px;animation:blink 1.05s steps(2) infinite}
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+  .bars{margin-top:20px;display:flex;flex-direction:column;gap:2px}
+  .bar{position:relative;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
+    padding:9px 10px;border:1px solid transparent;cursor:pointer;overflow:hidden;
+    transition:border-color .15s}
+  .bar .fill{position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,.10);
+    transition:width .45s var(--spring)}
+  .bar:hover{border-color:var(--line-hi)}
+  .bar:hover .fill{background:rgba(255,255,255,.18)}
+  .bar .w{position:relative;font-family:'JetBrains Mono',monospace;font-size:13px;color:#e2e2e2;white-space:pre}
+  .bar .p{position:relative;font-family:'JetBrains Mono',monospace;font-size:11px;color:#7e7e7e;letter-spacing:.06em}
+  .bar.top .w{color:#fff}
+  #tempVal{color:#e8e8e8}
+  #ntDone{margin-top:16px;font-size:1.06rem;color:#8f8f8f;line-height:1.45;display:none}
+
+  /* ---- fig 3: dials ---- */
+  #dials{display:grid;grid-template-columns:repeat(40,1fr);gap:5px}
+  .dl{aspect-ratio:1/1;position:relative}
+  .dl i{position:absolute;left:50%;top:50%;width:1.5px;height:52%;background:#8a8a8a;
+    transform-origin:50% 100%;transform:translate(-50%,-100%) rotate(0deg);
+    transition:transform .9s var(--spring),background .9s ease}
+  .dl.set i{background:#f0f0f0}
+
+  /* ---- fig 4: attention ---- */
+  #attSvg{width:100%;height:auto;display:block;overflow:visible}
+  #attSvg text{font-family:'JetBrains Mono',monospace;font-size:13px;fill:#8a8a8a}
+  #attSvg text.hi{fill:#fff}
+  #attSvg text.q{fill:#e8e8e8}
+  #attSvg path{fill:none;stroke:#e0e0e0;stroke-width:1.2;
+    transition:opacity .5s ease,d .5s ease}
+
+  /* ---- fig 5: pipeline ---- */
+  .pipe{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--line)}
+  .st{background:var(--bg);padding:18px 14px;display:flex;flex-direction:column}
+  .st .d{flex:1}
+  .st .n{font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:.2em;color:#4f4f4f;margin-bottom:10px}
+  .st .t{font-family:'Basement Grotesque','Arial Black',sans-serif;font-weight:900;
+    font-size:1.1rem;letter-spacing:-.02em;color:#fff;line-height:1.1;margin-bottom:8px}
+  .st .d{font-size:1rem;color:#8a8a8a;line-height:1.4}
+  .st .m{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#5a5a5a;letter-spacing:.1em}
+
+  /* ===================== RESOURCES ===================== */
+  .res{padding-top:clamp(50px,8vh,90px)}
+  .res-hd{display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+    padding:0 0 16px;border-bottom:1px solid var(--line)}
+  .res-hd h2{font-family:'Press Start 2P',monospace;font-size:clamp(10px,1.6vw,12px);
+    letter-spacing:.32em;color:#e8e8e8;font-weight:400}
+  .res-hd .c{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:#4f4f4f}
+  .res-grp{margin-top:30px}
+  .res-grp > .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;
+    color:#5f5f5f;margin-bottom:6px}
+  .res-grp > .sub{font-size:1.04rem;color:#7a7a7a;line-height:1.42;margin-bottom:12px;max-width:56ch}
+  .item{display:grid;grid-template-columns:26px 1fr auto;gap:clamp(10px,2.4vw,20px);
+    align-items:baseline;padding:15px 0;border-top:1px solid var(--line);transition:padding .18s var(--spring)}
+  .item:last-child{border-bottom:1px solid var(--line)}
+  .item:hover{padding-left:8px}
+  .item .i{font-family:'JetBrains Mono',monospace;font-size:10px;color:#4a4a4a}
+  .item .t{font-size:1.14rem;color:#dcdcdc;line-height:1.2}
+  .item:hover .t{color:#fff}
+  .item .w{display:block;font-size:1rem;color:#767676;margin-top:5px;line-height:1.4}
+  .item .meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:#4a4a4a;
+    letter-spacing:.12em;white-space:nowrap}
+
+  /* ===================== FOOT ===================== */
+  .end{margin-top:clamp(50px,8vh,90px);padding-top:clamp(30px,5vh,54px);
+    padding-bottom:clamp(50px,8vh,90px);border-top:1px solid var(--line)}
+  .end p{max-width:56ch}
+  .end .sig{margin-top:26px;display:flex;gap:22px;flex-wrap:wrap}
+  .end .sig a{font-size:1.14rem;color:#cfcfcf;border-bottom:1px solid rgba(255,255,255,.24);transition:.15s}
+  .end .sig a:hover{color:#fff;border-color:#fff}
+  footer{padding-bottom:calc(46px + env(safe-area-inset-bottom));
+    font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.1em;color:#3f3f3f}
+
+  /* ===================== REVEAL ===================== */
+  .rv{opacity:0;transform:translateY(16px);
+    transition:opacity .7s var(--spring),transform .7s var(--spring)}
+  .rv.in{opacity:1;transform:none}
+
+  /* ===================== RESPONSIVE ===================== */
+  @media(max-width:700px){
+    body{font-size:18px}
+    .pipe{grid-template-columns:1fr}
+    .item{grid-template-columns:22px 1fr;row-gap:4px}
+    .item .meta{grid-column:2}
+    #attSvg text{font-size:11px}
+    #dials{grid-template-columns:repeat(20,1fr);gap:4px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  }
+</style>
+</head>
+<body>
+
+<div id="grain"></div>
+<div id="scrollbar"></div>
+
+<div class="topbar">
+  <div class="inner">
+    <a class="back" href="../index.html#writing">&larr; CONNORDORE.COM</a>
+    <span class="tag">WRITING / 01</span>
+  </div>
+</div>
+
+<article>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero wrap">
+  <div class="kicker">HOW LLMS WORK</div>
+  <h1>One Word<br>at a Time</h1>
+  <p class="deck">Everything a large language model does comes out of one boring move, repeated fast. Here is that move, why it explains almost every strange thing you have seen a model do, and the four videos that will take you the rest of the way.</p>
+  <div class="byline">
+    <span>CONNOR DORE</span>
+    <span>2026</span>
+    <span>9 MIN READ</span>
+  </div>
+</header>
+
+<!-- ===================== 01 ===================== -->
+<section class="sec wrap rv">
+  <div class="num">01</div>
+  <h2>The only thing it does</h2>
+  <p class="lead">A large language model reads whatever text is in front of it and guesses what comes next. That is the whole job. Not a search. Not a lookup. A guess.</p>
+  <p>Then it takes its own guess, staples it onto the end of the text, and guesses again. And again. A thousand times in a row, faster than you can read. The essay it writes you was never planned. It was assembled one small piece at a time, and the model never knew where it was going until it got there.</p>
+  <p>This sounds too simple to produce anything useful. That reaction is correct and also wrong, and the gap between those two things is the interesting part.</p>
+</section>
+
+<div class="wrap rv"><figure>
+  <div class="fig-hd"><span class="t">FIG 01 / NEXT TOKEN</span><span class="n">CLICK A WORD</span></div>
+  <div class="fig-b">
+    <div id="ctxLine"></div>
+    <div class="bars" id="bars"></div>
+    <div id="ntDone">That is it. That is the loop, run a few thousand more times. <button class="b" id="ntReset" style="margin-left:8px">RESET</button></div>
+    <div class="ctl">
+      <span>TEMPERATURE</span>
+      <input type="range" id="temp" min="10" max="180" value="100" step="5" aria-label="temperature">
+      <span id="tempVal">1.00</span>
+    </div>
+  </div>
+  <figcaption>Real numbers from a real model would come from billions of parameters. These are hand-set so you can play with the shape. Temperature is the one dial you can already reach in most tools: turn it down and the model always takes the safest word, turn it up and it starts reaching for the strange ones.</figcaption>
+</figure></div>
+
+<!-- ===================== 02 ===================== -->
+<section class="sec wrap rv">
+  <div class="num">02</div>
+  <h2>It does not see words</h2>
+  <p>Before any of that happens, your text gets chopped into <strong>tokens</strong>. A token is usually a chunk of a word, sometimes a whole common word, sometimes a single character. Every token maps to a number, because the machine underneath is doing arithmetic, not reading.</p>
+  <p>This sounds like a footnote. It is not. Tokenization quietly explains a whole category of model failures that otherwise look like stupidity.</p>
+</section>
+
+<div class="wrap rv"><figure>
+  <div class="fig-hd"><span class="t">FIG 02 / TOKENS</span><span class="n">TYPE ANYTHING</span></div>
+  <div class="fig-b">
+    <textarea id="tokIn" spellcheck="false">Connor Dore builds AI tools. Tokenization is deeply unintuitive.</textarea>
+    <div id="tokOut"></div>
+    <div id="tokCount"></div>
+  </div>
+  <figcaption>An approximation of how a GPT-style tokenizer splits text, close enough to feel the rules: leading spaces ride along with their word, punctuation goes solo, rare and long words shatter into pieces. For the exact splits and the real token IDs, run your own text through <a class="link" href="https://tiktokenizer.vercel.app" target="_blank" rel="noopener">tiktokenizer</a>.</figcaption>
+</figure></div>
+
+<section class="sec wrap rv">
+  <div class="aside">
+    <div class="h">WHY IT CANNOT SPELL STRAWBERRY</div>
+    <p>Ask a model how many r's are in "strawberry" and it may well tell you two. Not because it cannot count, but because it never saw the letters. It saw something like <span style="font-family:'JetBrains Mono',monospace;font-size:.9em;color:#ccc">str | aw | berry</span>, three numbers, no spelling. You asked a question about characters to something that perceives the world in chunks.</p>
+    <p>Same reason math on long numbers goes sideways, and the same reason a model can be brilliant at writing your contract and useless at telling you how many words are in it.</p>
+  </div>
+</section>
+
+<!-- ===================== 03 ===================== -->
+<section class="sec wrap rv">
+  <div class="num">03</div>
+  <h2>A room full of dials</h2>
+  <p>Between the tokens going in and the guess coming out sits the model itself: an enormous pile of numbers called <strong>parameters</strong>, or weights. Picture a room of dials, hundreds of billions of them, each one a knob that nudges the guess slightly one way or another.</p>
+  <p>Nobody set those dials by hand. Nobody could. They were set by failure, repeated at absurd scale.</p>
+  <p>Take a chunk of text from the internet. Hide the next token. Let the model guess. Compare its guess to the real answer. Then nudge every dial a hair in whatever direction would have made the right answer slightly more likely. Do that trillions of times. That is <strong>training</strong>, and there is no more magic in it than that.</p>
+  <p class="pull">The model is not a library. It is a lossy compression of one, and it cannot tell which parts it lost.</p>
+  <p>This is also the honest answer to "does it know things." Everything it absorbed got smeared across those dials. Nothing is stored as a fact you could go look up. When the model gets something right, it is reconstructing a plausible answer from a compressed impression, and that process feels identical from the inside whether the reconstruction is accurate or invented. That is what a hallucination is. Not a lie, not a bug, just the same machinery running with worse raw material.</p>
+</section>
+
+<div class="wrap rv"><figure>
+  <div class="fig-hd"><span class="t">FIG 03 / TRAINING</span><span class="n">SCRUB THE BAR</span></div>
+  <div class="fig-b">
+    <div id="dials"></div>
+    <div class="ctl">
+      <span>TRAINING PROGRESS</span>
+      <input type="range" id="train" min="0" max="100" value="0" step="1" aria-label="training progress">
+      <span id="trainVal">0%</span>
+    </div>
+  </div>
+  <figcaption>400 dials, starting at random, settling as training proceeds. A frontier model has somewhere between a hundred billion and a couple trillion of these, and every single one moved a little on every step.</figcaption>
+</figure></div>
+
+<!-- ===================== 04 ===================== -->
+<section class="sec wrap rv">
+  <div class="num">04</div>
+  <h2>Attention, which is the actual breakthrough</h2>
+  <p>Guessing the next token is easy when the answer is a few words back. It is hard when the answer depends on something forty sentences ago, and harder still when a single word changes meaning based on a word that comes after it.</p>
+  <p>The 2017 idea that unlocked all of this is called <strong>attention</strong>. Before it predicts anything, every token in your text gets to look at every other token and ask a question: which of you actually matter to me right now? The words that matter get pulled in, and each token quietly updates its own meaning based on the company it keeps.</p>
+  <p>"Bank" is one thing next to "river" and another next to "loan." No dictionary tells the model that. Attention does, by letting the word absorb its neighbours.</p>
+</section>
+
+<div class="wrap rv"><figure>
+  <div class="fig-hd"><span class="t">FIG 04 / ATTENTION</span><span class="n">FLIP THE LAST WORD</span></div>
+  <div class="fig-b">
+    <svg id="attSvg" viewBox="0 0 620 118" role="img" aria-label="attention diagram">
+      <g id="attWords"></g>
+      <path id="attArc" d="" opacity="0"></path>
+      <circle id="attDot" r="2.5" fill="#e0e0e0" opacity="0"></circle>
+    </svg>
+    <div class="ctl">
+      <span>LAST WORD</span>
+      <button class="b" id="attBig" aria-pressed="true">BIG</button>
+      <button class="b" id="attSmall" aria-pressed="false">SMALL</button>
+    </div>
+  </div>
+  <figcaption>One word changes at the end of the sentence, and "it" now refers to something else entirely. A model with no attention mechanism has no way to make that jump. This is the sentence that broke machine translation for decades.</figcaption>
+</figure></div>
+
+<!-- ===================== 05 ===================== -->
+<section class="sec wrap rv">
+  <div class="num">05</div>
+  <h2>How a document-completer becomes an assistant</h2>
+  <p>Train on the internet and you do not get a helpful assistant. You get something that completes documents. Ask it a question and it might answer, or it might reply with nine more questions, because that is what a page of questions on the internet usually looks like.</p>
+  <p>Turning that into something you can talk to takes a second phase. Human labellers write thousands of examples of the ideal assistant response, and the model is trained to imitate them. Then a third phase grades responses against each other, so the model learns to steer toward the ones people preferred.</p>
+  <p>This is the part most people never hear about, and it reframes everything. The "personality" you are talking to is a statistical impression of a helpful human labeller following a style guide. When a model refuses something odd, or hedges, or has a house voice, you are usually seeing that document rather than seeing the model.</p>
+</section>
+
+<div class="wrap rv"><figure>
+  <div class="fig-hd"><span class="t">FIG 05 / THE PIPELINE</span><span class="n">3 STAGES</span></div>
+  <div class="fig-b">
+    <div class="pipe">
+      <div class="st">
+        <div class="n">01</div>
+        <div class="t">Pretrain</div>
+        <div class="d">Guess the next token across a huge slice of the internet. Builds raw knowledge and language ability.</div>
+        <div class="m">MONTHS / $100M+</div>
+      </div>
+      <div class="st">
+        <div class="n">02</div>
+        <div class="t">Fine-tune</div>
+        <div class="d">Imitate thousands of human-written ideal answers. Turns a completer into an assistant.</div>
+        <div class="m">WEEKS / HUMAN WRITTEN</div>
+      </div>
+      <div class="st">
+        <div class="n">03</div>
+        <div class="t">Reinforce</div>
+        <div class="d">Get graded on which answers people or automated checks prefer. Sharpens judgement and refusals.</div>
+        <div class="m">ONGOING / GRADED</div>
+      </div>
+    </div>
+  </div>
+  <figcaption>Almost all the knowledge arrives in stage one. Almost all the behaviour you actually experience arrives in stages two and three.</figcaption>
+</figure></div>
+
+<!-- ===================== 06 ===================== -->
+<section class="sec wrap rv">
+  <div class="num">06</div>
+  <h2>Thinking out loud</h2>
+  <p>A model gets one shot of computation per token. That is a hard ceiling. Ask for the answer to a hard problem in a single token and you are asking it to do all the work in one step, which it cannot do.</p>
+  <p>So the newer models were trained to spend tokens on themselves first. They write out a scratchpad, work the problem in the open, catch their own mistakes, then answer. Reasoning is not a different kind of intelligence bolted on. It is the same next-token loop, pointed at its own working, buying itself more steps to think in.</p>
+  <p>Which is also why "show your work" and "think step by step" made older models measurably smarter. You were manually giving them room they did not know to take.</p>
+</section>
+
+<!-- ===================== 07 ===================== -->
+<section class="sec wrap rv">
+  <div class="num">07</div>
+  <h2>What this buys you</h2>
+  <p>Once the loop is in your head, the model stops being mysterious and starts being predictable, which is the only thing that matters if you plan to build with it.</p>
+  <p><strong>Context is everything.</strong> The model has no memory between messages. Its entire world is the text currently in front of it. Every trick that works, retrieval, examples, a good system prompt, pasting the actual document, works for the same reason: you put the answer inside the window it can see.</p>
+  <p><strong>Confidence is not evidence.</strong> Fluency is the one thing the model was directly optimised for. Correctness came along for the ride. A wrong answer costs it exactly as much effort as a right one, so it will never sound less sure.</p>
+  <p><strong>Show, do not describe.</strong> Two examples of the output you want will beat two paragraphs describing it. You are steering a pattern matcher. Give it the pattern.</p>
+  <p><strong>Verification is your job.</strong> Not because the tool is bad, but because nothing in how it was built makes it responsible for being right. That part never got automated, and pretending otherwise is how people get burned.</p>
+</section>
+
+<!-- ===================== RESOURCES ===================== -->
+<section class="res wrap rv" id="resources">
+  <div class="res-hd"><h2>GO DEEPER</h2><span class="c">11 LINKS</span></div>
+
+  <div class="res-grp">
+    <div class="lbl">WATCH, IN THIS ORDER</div>
+    <div class="sub">Two people explain this better than anyone. Grant Sanderson at 3Blue1Brown draws it. Andrej Karpathy, who built a lot of it, walks the whole stack. Start at eight minutes, end at three and a half hours.</div>
+
+    <a class="item" href="https://www.youtube.com/watch?v=LPZh9BOjkQs" target="_blank" rel="noopener">
+      <span class="i">01</span>
+      <span>
+        <span class="t">Large Language Models explained briefly</span>
+        <span class="w">3Blue1Brown. The whole idea, start to finish, in one sitting. If you only watch one thing, watch this one.</span>
+      </span>
+      <span class="meta">~8 MIN</span>
+    </a>
+
+    <a class="item" href="https://www.youtube.com/watch?v=aircAruvnKk" target="_blank" rel="noopener">
+      <span class="i">02</span>
+      <span>
+        <span class="t">But what is a neural network?</span>
+        <span class="w">3Blue1Brown, Deep Learning chapter 1. The room full of dials, drawn properly. Everything above sits on top of this.</span>
+      </span>
+      <span class="meta">~19 MIN</span>
+    </a>
+
+    <a class="item" href="https://www.youtube.com/watch?v=wjZofJX0v4M" target="_blank" rel="noopener">
+      <span class="i">03</span>
+      <span>
+        <span class="t">Transformers, the tech behind LLMs</span>
+        <span class="w">3Blue1Brown, Deep Learning chapter 5. Attention, visualised. The clearest explanation of the 2017 idea that exists.</span>
+      </span>
+      <span class="meta">~27 MIN</span>
+    </a>
+
+    <a class="item" href="https://www.youtube.com/watch?v=7xTGNNLPyMI" target="_blank" rel="noopener">
+      <span class="i">04</span>
+      <span>
+        <span class="t">Deep Dive into LLMs like ChatGPT</span>
+        <span class="w">Andrej Karpathy. The full training stack for a general audience, tokenization through reinforcement learning. Long, and worth every minute. This is the source for most of section 05 above.</span>
+      </span>
+      <span class="meta">3H 31M</span>
+    </a>
+  </div>
+
+  <div class="res-grp">
+    <div class="lbl">GO POKE AT IT</div>
+    <div class="sub">Reading about this is fine. Watching the numbers move is better.</div>
+
+    <a class="item" href="https://tiktokenizer.vercel.app" target="_blank" rel="noopener">
+      <span class="i">05</span>
+      <span>
+        <span class="t">Tiktokenizer</span>
+        <span class="w">Paste any text, watch it split into real tokens with real IDs, across different models. Ten minutes here permanently fixes your intuition about pricing, context limits and why spelling questions fail.</span>
+      </span>
+      <span class="meta">TOOL</span>
+    </a>
+
+    <a class="item" href="https://artificialanalysis.ai/models" target="_blank" rel="noopener">
+      <span class="i">06</span>
+      <span>
+        <span class="t">Artificial Analysis</span>
+        <span class="w">Every major model benchmarked on quality, price, speed, latency and context window, side by side. The honest answer to "which model should I use," updated as things ship.</span>
+      </span>
+      <span class="meta">BENCHMARKS</span>
+    </a>
+
+    <a class="item" href="https://huggingface.co/models" target="_blank" rel="noopener">
+      <span class="i">07</span>
+      <span>
+        <span class="t">Hugging Face</span>
+        <span class="w">The open commons. Hundreds of thousands of models and datasets you can download and run yourself. Proof that this is a field, not a product.</span>
+      </span>
+      <span class="meta">MODELS</span>
+    </a>
+
+    <a class="item" href="https://lmarena.ai" target="_blank" rel="noopener">
+      <span class="i">08</span>
+      <span>
+        <span class="t">LMArena</span>
+        <span class="w">Two anonymous models answer your prompt, you pick the better one, the votes become a leaderboard. Benchmarks measure tests. This measures taste.</span>
+      </span>
+      <span class="meta">LEADERBOARD</span>
+    </a>
+  </div>
+
+  <div class="res-grp">
+    <div class="lbl">IF YOU WANT THE ACTUAL MACHINE</div>
+    <div class="sub">Past the point of explanation. This is the code and the papers.</div>
+
+    <a class="item" href="https://www.youtube.com/watch?v=zduSFxRajkE" target="_blank" rel="noopener">
+      <span class="i">09</span>
+      <span>
+        <span class="t">Let's build the GPT Tokenizer</span>
+        <span class="w">Karpathy builds tokenization from nothing, in Python, live. The perfect companion to an afternoon in tiktokenizer.</span>
+      </span>
+      <span class="meta">2H 13M</span>
+    </a>
+
+    <a class="item" href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">
+      <span class="i">10</span>
+      <span>
+        <span class="t">Attention Is All You Need</span>
+        <span class="w">The 2017 paper that introduced the transformer. Eight pages. Every model you have ever used is a descendant of this.</span>
+      </span>
+      <span class="meta">PAPER</span>
+    </a>
+
+    <a class="item" href="https://www.anthropic.com/research/mapping-mind-language-model" target="_blank" rel="noopener">
+      <span class="i">11</span>
+      <span>
+        <span class="t">Mapping the Mind of a Large Language Model</span>
+        <span class="w">Anthropic's interpretability team going inside a production model and finding what individual concepts look like in the weights. The frontier of "we do not fully know why it works."</span>
+      </span>
+      <span class="meta">RESEARCH</span>
+    </a>
+  </div>
+</section>
+
+<!-- ===================== END ===================== -->
+<section class="end wrap rv">
+  <p>I build AI tools with people who know their industry better than I know their industry. Most of that work starts here, with someone understanding what the thing in front of them actually is, so they stop asking it for miracles and start asking it for the right work.</p>
+  <p>If that is where you are, say hello.</p>
+  <div class="sig">
+    <a href="mailto:connor.precisionworks@gmail.com">connor.precisionworks@gmail.com</a>
+    <a href="https://cal.com/connor-dore" target="_blank" rel="noopener">book a call</a>
+    <a href="../index.html">back to the site</a>
+  </div>
+</section>
+
+<footer class="wrap">CONNORDORE.COM</footer>
+
+</article>
+
+<script>
+(function(){
+  'use strict';
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- scroll progress ---------- */
+  var sb = document.getElementById('scrollbar');
+  function prog(){
+    var h = document.documentElement.scrollHeight - innerHeight;
+    sb.style.width = (h > 0 ? (scrollY / h) * 100 : 0) + '%';
+  }
+  addEventListener('scroll', prog, {passive:true});
+  addEventListener('resize', prog);
+  prog();
+
+  /* ---------- reveals ---------- */
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(x){
+      if (x.isIntersecting){ x.target.classList.add('in'); io.unobserve(x.target); }
+    });
+  }, {threshold:0.08, rootMargin:'0px 0px -4% 0px'});
+  document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+
+  /* =========================================================
+     FIG 01 — next token prediction
+     ========================================================= */
+  var SEED = 'The cat sat on the';
+  var TREE = {
+    'The cat sat on the': [['mat',.44],['floor',.17],['couch',.14],['windowsill',.10],['rug',.09],['keyboard',.06]],
+    'The cat sat on the mat': [['.',.36],[',',.20],['and',.17],['while',.11],['staring',.09],['for',.07]],
+    'The cat sat on the floor': [['and',.30],['.',.25],[',',.17],['next',.12],['because',.09],['staring',.07]],
+    'The cat sat on the couch': [['.',.33],['and',.23],[',',.17],['all',.11],['watching',.09],['like',.07]],
+    'The cat sat on the windowsill': [['and',.31],[',',.21],['.',.18],['watching',.15],['for',.08],['as',.07]],
+    'The cat sat on the rug': [['.',.34],['and',.22],[',',.18],['in',.11],['while',.08],['looking',.07]],
+    'The cat sat on the keyboard': [['and',.28],[',',.20],['.',.18],['while',.14],['until',.11],['which',.09]],
+    'The cat sat on the mat and': [['stared',.27],['waited',.21],['refused',.17],['blinked',.14],['did',.11],['began',.10]],
+    'The cat sat on the mat while': [['I',.32],['the',.24],['we',.15],['everyone',.12],['it',.09],['she',.08]],
+    'The cat sat on the mat ,': [['unmoving',.25],['silent',.22],['tail',.19],['waiting',.15],['perfectly',.11],['as',.08]],
+    'The cat sat on the floor and': [['stared',.28],['waited',.22],['refused',.17],['yawned',.13],['looked',.11],['began',.09]],
+    'The cat sat on the couch and': [['stared',.27],['slept',.23],['waited',.18],['refused',.14],['stretched',.10],['began',.08]],
+    'The cat sat on the windowsill and': [['watched',.36],['stared',.21],['waited',.17],['blinked',.12],['slept',.08],['began',.06]],
+    'The cat sat on the keyboard and': [['refused',.32],['stared',.20],['deleted',.17],['typed',.13],['waited',.10],['began',.08]]
+  };
+
+  var ctx = SEED, tempEl = document.getElementById('temp'),
+      tempVal = document.getElementById('tempVal'),
+      barsEl = document.getElementById('bars'),
+      ctxEl = document.getElementById('ctxLine'),
+      doneEl = document.getElementById('ntDone');
+
+  function joinTok(base, tok){
+    return /^[.,!?;:]$/.test(tok) ? base + tok : base + ' ' + tok;
+  }
+  function lookup(c){
+    if (TREE[c]) return TREE[c];
+    var alt = c.replace(/ ([.,!?;:])/g, ' $1');
+    return TREE[alt] || null;
+  }
+  function softmax(list, T){
+    var out = list.map(function(x){ return [x[0], Math.pow(x[1], 1/T)]; });
+    var s = out.reduce(function(a,b){ return a + b[1]; }, 0);
+    return out.map(function(x){ return [x[0], x[1]/s]; });
+  }
+  function renderCtx(){
+    ctxEl.innerHTML = '';
+    ctxEl.appendChild(document.createTextNode(ctx + ' '));
+    var c = document.createElement('span'); c.className = 'cursor';
+    ctxEl.appendChild(c);
+  }
+  function renderBars(){
+    renderCtx();
+    var raw = lookup(ctx);
+    if (!raw){
+      barsEl.innerHTML = '';
+      doneEl.style.display = 'block';
+      return;
+    }
+    doneEl.style.display = 'none';
+    var T = parseInt(tempEl.value, 10) / 100;
+    var dist = softmax(raw, T).sort(function(a,b){ return b[1] - a[1]; });
+    barsEl.innerHTML = '';
+    dist.forEach(function(d, i){
+      var row = document.createElement('div');
+      row.className = 'bar' + (i === 0 ? ' top' : '');
+      row.setAttribute('role','button');
+      row.setAttribute('tabindex','0');
+      var fill = document.createElement('div');
+      fill.className = 'fill';
+      var w = document.createElement('span'); w.className = 'w'; w.textContent = d[0];
+      var p = document.createElement('span'); p.className = 'p';
+      p.textContent = (d[1]*100).toFixed(1) + '%';
+      row.appendChild(fill); row.appendChild(w); row.appendChild(p);
+      barsEl.appendChild(row);
+      requestAnimationFrame(function(){ fill.style.width = Math.max(1.5, d[1]*100) + '%'; });
+      function pick(){ ctx = joinTok(ctx, d[0]); renderBars(); }
+      row.addEventListener('click', pick);
+      row.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pick(); }
+      });
+    });
+  }
+  tempEl.addEventListener('input', function(){
+    tempVal.textContent = (parseInt(tempEl.value,10)/100).toFixed(2);
+    renderBars();
+  });
+  document.getElementById('ntReset').addEventListener('click', function(){
+    ctx = SEED; renderBars();
+  });
+  renderBars();
+
+  /* =========================================================
+     FIG 02 — approximate tokenizer
+     ========================================================= */
+  var tokIn = document.getElementById('tokIn'),
+      tokOut = document.getElementById('tokOut'),
+      tokCount = document.getElementById('tokCount');
+
+  /* common-enough words that survive as one token */
+  var WHOLE = /^(the|and|for|you|your|that|this|with|have|from|they|been|were|will|would|there|their|about|which|people|because|through|between|something|different|important|understand|technology|business|question|building|tools|model|models|token|tokens|words|word|next|text|data|work|time|thing|things|like|just|make|makes|into|only|over|what|when|then|than|very|much|more|most|some|also|does|done|down|good|well|even|back|know|need|same|both|each|find|give|come|take|used|using|write|writing|read|reading|first|last|long|hard|easy|real|true|deep|wrong|right|actually|really|little|number|numbers|system|answer|answers)$/i;
+
+  function chunk(word){
+    /* leading space rides with the word, like a real BPE vocab */
+    var lead = '', core = word;
+    if (/^\s/.test(word)){ lead = word[0]; core = word.slice(1); }
+    var bare = core.replace(/^[^A-Za-z0-9]+/, '');
+    if (WHOLE.test(bare) || core.length <= 6) return [lead + core];
+    /* long or unusual: shatter it, biggest piece first, like BPE does */
+    var out = [], i = 0, first = true;
+    while (i < core.length){
+      var size = first ? 4 : 4;
+      out.push((first ? lead : '') + core.slice(i, i + size));
+      i += size; first = false;
+    }
+    return out;
+  }
+  function tokenize(text){
+    if (!text) return [];
+    var re = /'(?:[sdmt]|ll|ve|re)|\s?[A-Za-z]+|\s?[0-9]{1,3}|\s?[^\sA-Za-z0-9]+|\s+/g;
+    var parts = text.match(re) || [];
+    var toks = [];
+    parts.forEach(function(p){
+      if (/^\s+$/.test(p)){ toks.push(p); return; }
+      chunk(p).forEach(function(c){ toks.push(c); });
+    });
+    return toks;
+  }
+  function paintTokens(){
+    var toks = tokenize(tokIn.value);
+    tokOut.innerHTML = '';
+    toks.forEach(function(t){
+      var s = document.createElement('span');
+      s.className = 'tk' + (/^\s+$/.test(t) ? ' sp' : '');
+      s.textContent = t.replace(/^ /, '·').replace(/\n/g, '↵');
+      s.title = JSON.stringify(t);
+      tokOut.appendChild(s);
+    });
+    var chars = tokIn.value.length;
+    tokCount.innerHTML = '<b>' + toks.length + '</b> TOKENS &nbsp;/&nbsp; <b>' + chars +
+      '</b> CHARS &nbsp;/&nbsp; ' + (toks.length ? (chars/toks.length).toFixed(2) : '0') +
+      ' PER TOKEN &nbsp;&nbsp;·&nbsp;&nbsp; · = A LEADING SPACE';
+  }
+  tokIn.addEventListener('input', paintTokens);
+  paintTokens();
+
+  /* =========================================================
+     FIG 03 — dials settling
+     ========================================================= */
+  var dialsEl = document.getElementById('dials'), DIALS = [], N = 400;
+  for (var i = 0; i < N; i++){
+    var d = document.createElement('div'); d.className = 'dl';
+    var n = document.createElement('i'); d.appendChild(n);
+    dialsEl.appendChild(d);
+    DIALS.push({el:d, needle:n, start:Math.random()*360, target:(Math.random()*26)-13, order:Math.random()});
+  }
+  var trainEl = document.getElementById('train'), trainVal = document.getElementById('trainVal');
+  function paintDials(){
+    var t = parseInt(trainEl.value,10)/100;
+    trainVal.textContent = Math.round(t*100) + '%';
+    DIALS.forEach(function(d){
+      var k = Math.max(0, Math.min(1, (t - d.order*0.55) / 0.45));
+      var ang = d.start + (d.target - d.start) * k;
+      d.needle.style.transform = 'translate(-50%,-100%) rotate(' + ang.toFixed(1) + 'deg)';
+      d.el.classList.toggle('set', k > 0.85);
+    });
+  }
+  trainEl.addEventListener('input', paintDials);
+  paintDials();
+  /* nudge it forward once the figure is on screen, so it is not dead on arrival */
+  var dio = new IntersectionObserver(function(es){
+    es.forEach(function(x){
+      if (!x.isIntersecting) return;
+      dio.disconnect();
+      if (reduce){ trainEl.value = 100; paintDials(); return; }
+      var v = 0, id = setInterval(function(){
+        v += 2;
+        if (v >= 100){ v = 100; clearInterval(id); }
+        trainEl.value = v; paintDials();
+      }, 22);
+    });
+  }, {threshold:0.4});
+  dio.observe(dialsEl);
+
+  /* =========================================================
+     FIG 04 — attention
+     ========================================================= */
+  var WORDS = ['the','trophy',"didn't",'fit','in','the','suitcase','because','it','was','too'];
+  var svg = document.getElementById('attSvg'),
+      gWords = document.getElementById('attWords'),
+      arc = document.getElementById('attArc'),
+      dot = document.getElementById('attDot');
+  var NS = 'http://www.w3.org/2000/svg';
+  var POS = [], BASE_Y = 92, LAST = null;
+
+  function layout(mode){
+    gWords.innerHTML = ''; POS = [];
+    var all = WORDS.concat([mode, '.']);
+    /* narrow screens get two rows, which roughly doubles the type size */
+    var two = (svg.clientWidth || 620) < 560;
+    var BREAK = 7;                       /* row 2 starts at "because" */
+    var R1 = two ? 40 : BASE_Y, R2 = 100;
+    var x = 6, widest = 0;
+    all.forEach(function(w, i){
+      var row = (two && i >= BREAK) ? 2 : 1;
+      if (two && i === BREAK){ widest = Math.max(widest, x); x = 6; }
+      var t = document.createElementNS(NS, 'text');
+      t.setAttribute('x', x);
+      t.setAttribute('y', row === 2 ? R2 : R1);
+      t.textContent = w;
+      gWords.appendChild(t);
+      var wide = w.length * 7.9 + 4;
+      POS.push({x:x, w:wide, y:(row === 2 ? R2 : R1), row:row});
+      x += wide + 7;
+    });
+    widest = Math.max(widest, x);
+    svg.setAttribute('viewBox', '0 0 ' + (widest + 6) + ' ' + (two ? 130 : 118));
+    /* highlight */
+    var texts = gWords.querySelectorAll('text');
+    var itIdx = 8, targetIdx = (mode === 'big') ? 1 : 6;
+    texts[itIdx].setAttribute('class','q');
+    texts[targetIdx].setAttribute('class','hi');
+    texts[all.length - 2].setAttribute('class','hi');
+
+    /* arc from "it" over to its referent */
+    var a = POS[itIdx], b = POS[targetIdx];
+    var ax = a.x + a.w/2, bx = b.x + b.w/2, d;
+    if (a.row === b.row){
+      var top = a.y - 62;
+      d = 'M ' + ax + ' ' + (a.y - 16) +
+          ' C ' + ax + ' ' + top + ', ' + bx + ' ' + top + ', ' + bx + ' ' + (b.y - 16);
+      dot.setAttribute('cy', b.y - 16);
+    } else {
+      d = 'M ' + ax + ' ' + (a.y - 16) +
+          ' C ' + ax + ' ' + (a.y - 40) + ', ' + bx + ' ' + (b.y + 34) + ', ' + bx + ' ' + (b.y + 9);
+      dot.setAttribute('cy', b.y + 9);
+    }
+    arc.setAttribute('d', d);
+    arc.setAttribute('opacity', reduce ? '1' : '0');
+    dot.setAttribute('cx', bx);
+    dot.setAttribute('opacity', reduce ? '1' : '0');
+    if (!reduce){
+      var len = arc.getTotalLength();
+      arc.style.transition = 'none';
+      arc.style.strokeDasharray = len; arc.style.strokeDashoffset = len;
+      arc.setAttribute('opacity','1');
+      requestAnimationFrame(function(){
+        arc.style.transition = 'stroke-dashoffset .8s cubic-bezier(.22,1,.36,1)';
+        arc.style.strokeDashoffset = 0;
+        setTimeout(function(){ dot.setAttribute('opacity','1'); }, 620);
+      });
+    }
+  }
+  var bBig = document.getElementById('attBig'), bSmall = document.getElementById('attSmall');
+  function setMode(m){
+    if (LAST === m) return;
+    LAST = m;
+    bBig.setAttribute('aria-pressed', m === 'big');
+    bSmall.setAttribute('aria-pressed', m === 'small');
+    layout(m);
+  }
+  bBig.addEventListener('click', function(){ setMode('big'); });
+  bSmall.addEventListener('click', function(){ setMode('small'); });
+  var rt; addEventListener('resize', function(){
+    clearTimeout(rt);
+    rt = setTimeout(function(){ if (LAST){ var m = LAST; LAST = null; setMode(m); } }, 180);
+  });
+  var aio = new IntersectionObserver(function(es){
+    es.forEach(function(x){ if (x.isIntersecting){ aio.disconnect(); if (LAST === null) setMode('big'); } });
+  }, {threshold:0.3});
+  aio.observe(svg);
+  /* draw immediately without animation as a fallback if never observed */
+  setTimeout(function(){ if (LAST === null) setMode('big'); }, 1200);
+
+})();
+</script>
+</body>
+</html>

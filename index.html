@@ -165,16 +165,24 @@
     grid-template-columns:40px 1fr auto;gap:clamp(14px,3vw,32px);align-items:baseline}
   .post summary::-webkit-details-marker{display:none}
   .post .idx{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4a4a4a;letter-spacing:.1em}
-  .post .ttl{font-family:'Basement Grotesque','Arial Black',sans-serif;font-weight:900;
+  .post .ttl{display:block;font-family:'Basement Grotesque','Arial Black',sans-serif;font-weight:900;
     font-size:clamp(1.2rem,3.4vw,1.6rem);letter-spacing:-.02em;color:#e8e8e8;line-height:1.05;
     transition:color .2s ease}
   .post summary:hover .ttl{color:#fff}
-  .post .sub{font-size:1.06rem;color:#7e7e7e;margin-top:8px;max-width:56ch;line-height:1.34}
+  .post .sub{display:block;font-size:1.06rem;color:#7e7e7e;margin-top:8px;max-width:56ch;line-height:1.34}
   .post .when{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4a4a4a;letter-spacing:.12em;white-space:nowrap}
   .post .body{padding:0 0 34px;max-width:62ch;margin-left:calc(40px + clamp(14px,3vw,32px))}
   .post .body p{font-size:clamp(1.06rem,3.2vw,1.18rem);color:#a0a0a0;line-height:1.58;margin-bottom:1.1em}
   .post .body p:last-child{margin-bottom:0}
   .post[open] .ttl{color:#fff}
+  /* a piece that lives on its own page: same row, but it links out */
+  .post > .psum{display:grid;grid-template-columns:40px 1fr auto;gap:clamp(14px,3vw,32px);
+    align-items:baseline;padding:26px 0;transition:padding .18s var(--spring)}
+  .post > .psum:hover{padding-left:8px}
+  .post > .psum:hover .ttl{color:#fff}
+  .post > .psum .go{display:block;margin-top:11px;font-size:1.02rem;color:#8e8e8e;
+    border-bottom:1px solid rgba(255,255,255,.2);width:fit-content;transition:.15s}
+  .post > .psum:hover .go{color:#fff;border-color:#fff}
   .empty{padding:40px 0 8px;font-size:1.14rem;color:#6a6a6a}
 
   /* ===================== CONTACT ===================== */
@@ -429,7 +437,21 @@
 ================================================================ -->
 <section class="sec wrap" id="writing">
   <div class="sec-hd"><h2>WRITING</h2><span class="c" id="postCount">00</span></div>
-  <div id="posts"></div>
+  <div id="posts">
+
+    <div class="post">
+      <a class="psum" href="writing/how-llms-work.html">
+        <span class="idx">01</span>
+        <span>
+          <span class="ttl">One Word at a Time</span>
+          <span class="sub">How large language models actually work. No math, five things you can play with, and the four videos that take you the rest of the way.</span>
+          <span class="go">read it &rarr;</span>
+        </span>
+        <span class="when">2026 &middot; 9 MIN</span>
+      </a>
+    </div>
+
+  </div>
   <p class="empty" id="postsEmpty">First pieces going up shortly.</p>
 </section>
 
