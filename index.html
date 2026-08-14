@@ -95,7 +95,7 @@
   /* ===================== GATES ===================== */
   .gates{display:grid;grid-template-columns:1fr 1fr;gap:clamp(22px,5vw,72px);align-items:start;
     padding:clamp(30px,6vh,70px) 0 clamp(40px,8vh,90px)}
-  .gate{display:block;cursor:pointer;opacity:0;transform:translateY(22px);
+  .gate{display:block;opacity:0;transform:translateY(22px);
     transition:opacity .8s var(--spring) calc(var(--d)*1ms),transform .8s var(--spring) calc(var(--d)*1ms)}
   .gate.in{opacity:1;transform:none}
   .art{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;
@@ -114,12 +114,27 @@
   .gate:hover .g-cap .n{color:#fff}
 
   .g-list{margin-top:20px;list-style:none}
-  .g-list li{padding:13px 0;border-top:1px solid var(--line)}
+  .g-list li{border-top:1px solid var(--line)}
   .g-list li:last-child{border-bottom:1px solid var(--line)}
-  .g-list .k{display:block;font-size:1.1rem;color:#cdcdcd}
-  .g-list .k a{border-bottom:1px solid transparent;transition:border-color .15s,color .15s}
-  .g-list .k a:hover{color:#fff;border-color:rgba(255,255,255,.34)}
+  .g-list .k{display:block;font-size:1.1rem;color:#cdcdcd;transition:color .18s}
   .g-list .v{display:block;font-size:1rem;color:#6d6d6d;margin-top:5px;line-height:1.38}
+
+  /* every entry opens onto the longer version */
+  .gi summary{list-style:none;cursor:pointer;padding:13px 0;display:grid;
+    grid-template-columns:1fr 14px;gap:14px;align-items:start}
+  .gi summary::-webkit-details-marker{display:none}
+  .gi .sign{font-family:'JetBrains Mono',monospace;font-size:13px;color:#4f4f4f;
+    line-height:1.5;justify-self:end;transition:color .18s}
+  .gi .sign::before{content:'+'}
+  .gi[open] .sign::before{content:'\2212'}
+  .gi summary:hover .k,.gi[open] .k{color:#fff}
+  .gi summary:hover .sign,.gi[open] .sign{color:#fff}
+  .gi-body{padding:2px 0 20px;max-width:52ch}
+  .gi-body p{font-size:1.02rem;color:#8d8d8d;line-height:1.52}
+  .gi-foot{margin-top:13px;display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  .gi-stack{font-size:.96rem;color:#5f5f5f}
+  .gi-go{font-size:1.04rem;color:#d6d6d6;border-bottom:1px solid rgba(255,255,255,.26);transition:.15s}
+  .gi-go:hover{color:#fff;border-color:#fff}
 
   /* ===================== SECTIONS ===================== */
   section{scroll-margin-top:24px}
@@ -255,21 +270,134 @@
     <div class="art" data-ascii="knot23"><pre></pre></div>
     <div class="g-cap"><span class="t">WORK</span></div>
     <ul class="g-list">
-      <li><span class="k">Antfarm</span><span class="v">Desktop operating system for building software with AI agents. In build.</span></li>
-      <li><span class="k"><a href="https://lodestar-pac.vercel.app/research/" target="_blank" rel="noopener">Lodestar PAC</a></span><span class="v">Machine-learning ranking of near-Earth asteroids by value and mission accessibility. Live.</span></li>
-      <li><span class="k"><a href="https://useprmpt.com" target="_blank" rel="noopener">Prmpt</a></span><span class="v">Creator-owned distribution for AI prompts. Shipping.</span></li>
-      <li><span class="k"><a href="https://precisionworksai.com" target="_blank" rel="noopener">Lexx AI</a></span><span class="v">Legal AI for construction litigation, built with practicing attorneys. Pre-build.</span></li>
-      <li><span class="k"><a href="https://slatetutor.com" target="_blank" rel="noopener">Slate</a></span><span class="v">Back office and billing for independent tutors. Shipping.</span></li>
+      <li><details class="gi">
+        <summary>
+          <span>
+            <span class="k">Antfarm</span>
+            <span class="v">Desktop operating system for building software with AI agents. In build.</span>
+          </span>
+          <span class="sign"></span>
+        </summary>
+        <div class="gi-body">
+          <p>Working across Claude Code and Cowork meant context lived in a dozen terminal windows and nothing knew what anything else was doing. Antfarm reads my project notes as its source of truth and layers live agent sessions, task state, and token usage on top, so every project has one place showing its brief, roadmap, and what the crew is doing right now. Every transcript parser is built to degrade rather than crash, since the formats it reads are internal and undocumented. It built this site.</p>
+          <div class="gi-foot"><span class="gi-stack">Tauri &middot; Rust &middot; React &middot; Claude</span></div>
+        </div>
+      </details></li>
+
+      <li><details class="gi">
+        <summary>
+          <span>
+            <span class="k">Lodestar PAC</span>
+            <span class="v">Machine-learning ranking of near-Earth asteroids by value and mission accessibility. Live.</span>
+          </span>
+          <span class="sign"></span>
+        </summary>
+        <div class="gi-body">
+          <p>Scientists have confirmed the composition of only a few hundred of the roughly 41,900 known near-Earth asteroids. Lodestar trains on the confirmed ones to predict the rest at about 82% accuracy under leave-one-out validation, attaches a calibrated confidence score to every guess, computes real launch windows with a validated two-body Lambert solver, and renders each object&rsquo;s actual NASA shape model in 3D. It never blurs a confirmed measurement into an educated guess.</p>
+          <div class="gi-foot"><span class="gi-stack">Python &middot; scikit-learn &middot; React &middot; Three.js</span><a class="gi-go" href="https://lodestar-pac.vercel.app/research/" target="_blank" rel="noopener">lodestar-pac.vercel.app &rarr;</a></div>
+        </div>
+      </details></li>
+
+      <li><details class="gi">
+        <summary>
+          <span>
+            <span class="k">Prmpt</span>
+            <span class="v">Creator-owned distribution for AI prompts. Shipping.</span>
+          </span>
+          <span class="sign"></span>
+        </summary>
+        <div class="gi-body">
+          <p>Creators give away prompts to farm engagement and get back a comment count. Prmpt turns that into a storefront they actually own: packs released like albums, versioned updates that push to everyone who saved them, analytics on who ran what, and a claim flow that lets a stranger run a prompt anonymously before converting in one tap. The hard problem is not distribution, it is spotting which of those raised hands is a buyer.</p>
+          <div class="gi-foot"><span class="gi-stack">Next.js &middot; Supabase &middot; Claude</span><a class="gi-go" href="https://useprmpt.com" target="_blank" rel="noopener">useprmpt.com &rarr;</a></div>
+        </div>
+      </details></li>
+
+      <li><details class="gi">
+        <summary>
+          <span>
+            <span class="k">Lexx AI</span>
+            <span class="v">Legal AI for construction litigation, built with practicing attorneys. Pre-build.</span>
+          </span>
+          <span class="sign"></span>
+        </summary>
+        <div class="gi-body">
+          <p>A delay claim buries a litigator in contracts, RFIs, daily logs, schedules, and years of email. Lexx returns a cited timeline, a plain-English read on what actually drove the delay across baseline and as-built schedules, and an argument scaffold for the claim type. Generic legal models treat an RFI and a CPM schedule as opaque text; Lexx parses them as the structured artifacts they are. Every claim links back to a source document, because a hallucinated citation ends a career.</p>
+          <div class="gi-foot"><span class="gi-stack">Next.js &middot; Supabase &middot; pgvector &middot; Claude</span><a class="gi-go" href="https://precisionworksai.com" target="_blank" rel="noopener">precisionworksai.com &rarr;</a></div>
+        </div>
+      </details></li>
+
+      <li><details class="gi">
+        <summary>
+          <span>
+            <span class="k">Slate</span>
+            <span class="v">Back office and billing for independent tutors. Shipping.</span>
+          </span>
+          <span class="sign"></span>
+        </summary>
+        <div class="gi-body">
+          <p>Flexible rate tiers, session logging with billable travel, invoices that track sent versus paid, Stripe payments that mark themselves, cancellations that roll to credit or refund, prepaid packages, and a parent portal scoped to just their child. A send-a-link booking flow turns an offered slot into a billable session with no back-and-forth. Most of it was built by an unattended agent loop that code-reviews and browser-QAs every feature against a live database before it ships.</p>
+          <div class="gi-foot"><span class="gi-stack">Next.js &middot; Supabase &middot; Stripe &middot; Claude</span><a class="gi-go" href="https://slatetutor.com" target="_blank" rel="noopener">slatetutor.com &rarr;</a></div>
+        </div>
+      </details></li>
     </ul>
   </div>
   <div class="gate" style="--d:110">
     <div class="art" data-ascii="geode"><pre></pre></div>
     <div class="g-cap"><span class="t">EXPERIENCE</span></div>
     <ul class="g-list">
-      <li><span class="k">Austin Christian University pitch competition</span><span class="v">Won. Prize money, and outside investor interest in the company.</span></li>
-      <li><span class="k">Business award</span><span class="v">Jupiter Christian School.</span></li>
-      <li><span class="k">Network</span><span class="v">Founders and operators who bring problems worth building for.</span></li>
-      <li><span class="k">Products in production</span><span class="v">Software running inside real businesses today, not demos.</span></li>
+      <li><details class="gi">
+        <summary>
+          <span>
+            <span class="k">Austin Christian University pitch competition</span>
+            <span class="v">Won. Prize money, and outside investor interest in the company.</span>
+          </span>
+          <span class="sign"></span>
+        </summary>
+        <div class="gi-body">
+          <p>A pitch competition at Austin Christian University, and a first venture called LEO AI. It won. It drew investor interest. Then the team moved on and nothing shipped, which turned out to be the whole lesson: an idea is worth nothing until someone outside the room can use it. The idea did not die, it got specific. Today it is Lexx AI.</p>
+          <div class="gi-foot"><a class="gi-go" href="https://precisionworksai.com" target="_blank" rel="noopener">what it became &rarr;</a></div>
+        </div>
+      </details></li>
+
+      <li><details class="gi">
+        <summary>
+          <span>
+            <span class="k">Business Excellence Award</span>
+            <span class="v">Jupiter Christian School.</span>
+          </span>
+          <span class="sign"></span>
+        </summary>
+        <div class="gi-body">
+          <p>Recognised by Jupiter Christian School for work in business. Every product on this site was built alongside a full course load, which is the part that actually matters. Starting early is not a disclaimer to apologise for, it is the entire advantage: the compounding starts early too.</p>
+        </div>
+      </details></li>
+
+      <li><details class="gi">
+        <summary>
+          <span>
+            <span class="k">Extensive Network</span>
+            <span class="v">Founders and operators who bring problems worth building for.</span>
+          </span>
+          <span class="sign"></span>
+        </summary>
+        <div class="gi-body">
+          <p>Founders, operators, and attorneys who know a problem cold and want it solved. Every project on this site started that way: somebody described a thing that needed to exist, and it got built. No cold outreach, no agency, no pitch deck. The network is the pipeline, and it is the reason the work is real software with a partner on the other end rather than a portfolio of demos.</p>
+        </div>
+      </details></li>
+
+      <li><details class="gi">
+        <summary>
+          <span>
+            <span class="k">Products in production</span>
+            <span class="v">Software running inside real businesses today, not demos.</span>
+          </span>
+          <span class="sign"></span>
+        </summary>
+        <div class="gi-body">
+          <p>Lodestar PAC is live. Prmpt and Slate are shipping and in use. Lexx AI is in pre-build with practicing attorneys, and Antfarm is the desktop tool the rest of it gets built with. Five products, four of them with somebody outside the room depending on them working tomorrow morning.</p>
+          <div class="gi-foot"><a class="gi-go" href="https://slatetutor.com" target="_blank" rel="noopener">slatetutor.com &rarr;</a></div>
+        </div>
+      </details></li>
     </ul>
   </div>
 </section>
