@@ -521,6 +521,22 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
   .wx__go{ grid-column:2 }
 }
 
+/* ---------- pull quote ---------- */
+.qt{ display:grid; grid-template-columns:minmax(0,36.5%) 1fr;
+  gap:clamp(1.2rem,3vw,3rem); align-items:start; margin:0 }
+.qt__rule{ height:1px; background:var(--ink); opacity:.16; margin-top:.85em }
+.qt__t{ margin:0; font-size:clamp(1.35rem,3.1vw,2.85rem); line-height:1.18;
+  letter-spacing:-.022em; text-wrap:balance }
+.qt__t .dim{ color:var(--ink-38) }
+.qt__by{ grid-column:2; margin:clamp(1.1rem,2.2vw,1.9rem) 0 0;
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-38) }
+@media (max-width:800px){
+  .qt{ grid-template-columns:1fr }
+  .qt__rule{ width:52px; margin-top:0 }
+  .qt__by{ grid-column:1 }
+}
+
 /* ================= EXPLANATORY FIGURES ================= */
 .efig{ position:relative; border-radius:10px; overflow:hidden; background:#E7E1D5; margin:0 }
 .efig svg{ width:100%; height:auto; display:block }
@@ -690,6 +706,64 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
   .arc__stick{ position:static; height:auto; -webkit-mask-image:none; mask-image:none }
   .arc__track{ transform:none; gap:2rem }
 }
+
+/* ================= THE WALL ================= */
+html:has(.wall), body:has(.wall){ height:100svh; overflow:hidden; overscroll-behavior:none }
+.wall{ position:fixed; inset:0; overflow:hidden; background:var(--bone-deep);
+  cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none }
+.wall.is-drag{ cursor:grabbing }
+.wall__plane{ position:absolute; inset:0 }
+.wall__it{ position:absolute; left:50%; top:50%; will-change:transform }
+
+.wall__c{ margin:0; display:block; padding:.62rem .62rem 0; background:#FBFAF7; border-radius:2px;
+  box-shadow:0 1px 1px rgba(20,19,15,.14), 0 18px 34px -20px rgba(20,19,15,.4);
+  transform:rotate(var(--r,0deg));
+  transition:transform .6s var(--ease-plate), box-shadow .6s var(--ease-plate),
+             opacity .5s var(--ease), filter .5s var(--ease) }
+.wall__c img{ display:block; width:calc(var(--w,clamp(146px,15vw,214px)) * var(--s,1));
+  height:calc(var(--w,clamp(146px,15vw,214px)) * var(--s,1)); object-fit:cover; background:var(--bone-deep);
+  pointer-events:none }
+.wall__c figcaption{ height:2.7em; display:flex; align-items:center; justify-content:space-between;
+  gap:1em; padding:0 .2em; font-family:var(--mono); font-size:9.5px; letter-spacing:.13em;
+  color:rgba(20,23,26,.3); font-variant-numeric:tabular-nums }
+.wall__c figcaption b{ font:inherit; font-weight:400; font-family:'Reenie Beanie',cursive;
+  font-size:17px; letter-spacing:0; color:rgba(20,23,26,.62); line-height:1 }
+.wall:not(.is-drag) .wall__c:hover{ transform:rotate(0deg) translateY(-8px) scale(1.03);
+  box-shadow:0 2px 3px rgba(20,19,15,.15), 0 40px 56px -26px rgba(20,19,15,.46) }
+.wall.is-filtered .wall__c{ opacity:.13; filter:grayscale(1) }
+.wall.is-filtered .wall__c.is-match{ opacity:1; filter:none }
+
+/* chrome that floats over the plane */
+.wall__hud{ position:fixed; z-index:6; pointer-events:none }
+.wall__hud > *{ pointer-events:auto }
+.wall__head{ left:0; right:0; top:0; padding:calc(var(--gutter) * .7) var(--gutter)
+  calc(var(--gutter) * 1.6);
+  /* the plane runs under the chrome, so the type needs ground to sit on */
+  background:linear-gradient(180deg, var(--bone-deep) 24%, rgba(232,226,214,0));
+  display:flex; align-items:flex-start; justify-content:space-between; gap:1.5rem;
+  flex-wrap:wrap }
+.wall__ttl{ margin:0; font-size:clamp(1.5rem,3vw,2.5rem); letter-spacing:-.03em; font-weight:400;
+  line-height:1 }
+.wall__sub{ margin:.55em 0 0; font-family:var(--mono); font-size:10.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-38) }
+.wall__idx{ bottom:0; left:0; right:0; padding:calc(var(--gutter) * 1.5) var(--gutter)
+  calc(var(--gutter) * .8);
+  background:linear-gradient(0deg, var(--bone-deep) 34%, rgba(232,226,214,0));
+  display:flex; flex-wrap:wrap; gap:.2rem 1.4rem; justify-content:center }
+.wall__pin{ display:flex; align-items:center; gap:.55em; background:none; border:0; padding:.4em 0;
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-38); cursor:pointer; transition:color .4s var(--ease) }
+.wall__pin .pin{ width:8px; height:11px; flex:none; fill:var(--ink); opacity:.2;
+  transition:opacity .4s var(--ease) }
+.wall__pin:hover{ color:var(--ink) } .wall__pin:hover .pin{ opacity:.5 }
+.wall__pin.is-on{ color:var(--ink) } .wall__pin.is-on .pin{ opacity:1 }
+.wall__n{ font-size:9.5px; opacity:.45; font-variant-numeric:tabular-nums }
+.wall__hint{ position:fixed; z-index:6; left:50%; top:50%; transform:translate(-50%,-50%);
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink-38); pointer-events:none; transition:opacity .6s var(--ease) }
+.wall.is-touched ~ .wall__hint{ opacity:0 }
+@media (max-width:700px){ .wall__c{ --w:132px } }
+@media (prefers-reduced-motion:reduce){ .wall__c{ transition:none } }
 </style>
 </head>
 <body>
@@ -905,9 +979,23 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
   </div>
 </section>
 
+<!-- ============ QUOTE ============ -->
+<section class="sec sec--bone" id="ethic">
+  <figure class="qt">
+    <div class="qt__rule" data-reveal></div>
+    <div>
+      <blockquote class="qt__t" data-reveal data-delay="1">
+        <span class="dim">Lazy people do a little work and think they should be winning.</span>
+        Winners work as hard as possible and still worry that they are being lazy.
+      </blockquote>
+    </div>
+    <figcaption class="qt__by" data-reveal data-delay="2">Lewis Caralla</figcaption>
+  </figure>
+</section>
+
 <section class="sec sec--bone" id="archive">
   <a class="arc-tease" href="archive.html">
-    <p class="arc-tease__t">18 photographs from 7 places, <em>shot on whatever was in my pocket.</em></p>
+    <p class="arc-tease__t">19 photographs from 7 places, <em>shot on whatever was in my pocket.</em></p>
     <div class="arc-tease__pk"><img src="assets/photos/swiss-01-072426.webp" alt="" loading="lazy"><img src="assets/photos/milan-03-073126.webp" alt="" loading="lazy"><img src="assets/photos/italy-09-072826.webp" alt="" loading="lazy"></div>
     <span class="arc-tease__go">Open the archive <span aria-hidden="true">&#8599;</span></span>
   </a>
@@ -1457,6 +1545,7 @@ void main() {
 (function () {
   var stage = document.getElementById('stage');
   var canvas = document.getElementById('gl');
+  if (!stage || !canvas) return;          /* pages without the contact frame */
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function fallback() { stage.classList.add('fallback'); }
