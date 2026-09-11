@@ -522,19 +522,24 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
 }
 
 /* ---------- pull quote ---------- */
-.qt{ display:grid; grid-template-columns:minmax(0,36.5%) 1fr;
-  gap:clamp(1.2rem,3vw,3rem); align-items:start; margin:0 }
-.qt__rule{ height:1px; background:var(--ink); opacity:.16; margin-top:.85em }
-.qt__t{ margin:0; font-size:clamp(1.35rem,3.1vw,2.85rem); line-height:1.18;
-  letter-spacing:-.022em; text-wrap:balance }
-.qt__t .dim{ color:var(--ink-38) }
-.qt__by{ grid-column:2; margin:clamp(1.1rem,2.2vw,1.9rem) 0 0;
-  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
-  color:var(--ink-38) }
-@media (max-width:800px){
-  .qt{ grid-template-columns:1fr }
-  .qt__rule{ width:52px; margin-top:0 }
-  .qt__by{ grid-column:1 }
+.qt{ display:flex; flex-direction:column; align-items:center; margin:0; text-align:center }
+.qt__orb{ position:relative; width:min(620px,82vw); aspect-ratio:1/.56;
+  margin-bottom:clamp(20px,2.6vw,36px) }
+.qt__orb canvas{ position:absolute; left:0; bottom:0; width:100%; height:88%; display:block }
+.qt__orb svg{ position:absolute; left:0; bottom:0; width:100%; height:auto; overflow:visible;
+  pointer-events:none }
+.qt__orb svg text{ font-family:var(--mono); font-size:11.5px; letter-spacing:.18em;
+  text-transform:uppercase; fill:var(--ink-38) }
+.qt__horizon{ position:absolute; left:3%; right:3%; bottom:0; height:1px; background:var(--ink);
+  opacity:.14; transform:scaleX(0); transform-origin:center;
+  transition:transform 1.5s var(--ease-plate) }
+.qt.is-in .qt__horizon{ transform:scaleX(1) }
+.qt__t{ margin:0; max-width:17ch; font-family:'Reenie Beanie',cursive;
+  font-size:clamp(42px,6.4vw,92px); line-height:.98; letter-spacing:0; color:var(--ink) }
+.qt__by{ margin:clamp(22px,2.8vw,38px) 0 0; font-family:var(--mono); font-size:11px;
+  letter-spacing:.15em; text-transform:uppercase; color:var(--ink-38) }
+@media (max-width:640px){
+  .qt__orb svg text{ font-size:9px; letter-spacing:.1em }
 }
 
 /* ================= EXPLANATORY FIGURES ================= */
@@ -993,14 +998,19 @@ html:has(.wall), body:has(.wall){ height:100svh; overflow:hidden; overscroll-beh
 <!-- ============ QUOTE ============ -->
 <section class="sec sec--bone" id="ethic">
   <figure class="qt">
-    <div class="qt__rule" data-reveal></div>
-    <div>
-      <blockquote class="qt__t" data-reveal data-delay="1">
-        <span class="dim">Lazy people do a little work and think they should be winning.</span>
-        Winners work as hard as possible and still worry that they are being lazy.
-      </blockquote>
+    <div class="qt__orb" aria-hidden="true">
+      <canvas id="qorb"></canvas>
+      <div class="qt__horizon"></div>
+      <svg viewBox="0 0 400 210">
+        <defs><path id="qarc" d="M 24,200 A 176,176 0 0 1 376,200"/></defs>
+        <!-- textLength pins the string to the arc, so it can never overrun the ends -->
+        <text><textPath href="#qarc" startOffset="0" textLength="553" lengthAdjust="spacing"
+          >Lazy people do a little work and think they should be winning</textPath></text>
+      </svg>
     </div>
-    <figcaption class="qt__by" data-reveal data-delay="2">Lewis Caralla</figcaption>
+    <blockquote class="qt__t" data-reveal>Winners work as hard as possible and still worry that
+      they are being lazy.</blockquote>
+    <figcaption class="qt__by" data-reveal data-delay="1">Lewis Caralla</figcaption>
   </figure>
 </section>
 
@@ -1797,6 +1807,62 @@ void main() {
       }
     });
   });
+})();
+</script>
+
+<script>
+(function(){
+  var cv = document.getElementById('qorb'); if(!cv) return;
+  var fig = cv.closest('.qt'), ctx = cv.getContext('2d');
+  var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* fibonacci hemisphere: even coverage, none of the polar clumping you get
+     from stepping lat/lon */
+  var N = 2600, pts = [], gr = Math.PI * (3 - Math.sqrt(5));
+  for (var i = 0; i < N; i++){
+    var y = i / (N - 1), r = Math.sqrt(1 - y*y), th = gr * i;
+    pts.push([Math.cos(th)*r, y, Math.sin(th)*r]);
+  }
+
+  var dpr = Math.min(2, window.devicePixelRatio || 1), W = 0, H = 0;
+  function size(){
+    var b = cv.getBoundingClientRect();
+    W = b.width; H = b.height;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
+
+  var a = 0;
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+    var cx = W/2, cy = H*0.995, R = Math.min(W*0.5, H) * 0.755, f = 3.4;
+    var ca = Math.cos(a), sa = Math.sin(a);
+    for (var i = 0; i < pts.length; i++){
+      var p = pts[i], X = p[0]*ca + p[2]*sa, Z = -p[0]*sa + p[2]*ca;
+      var s = f / (f - Z);
+      var d = (Z + 1) / 2;                       /* 0 far .. 1 near */
+      ctx.globalAlpha = 0.10 + d * 0.72;
+      ctx.beginPath();
+      ctx.arc(cx + X*R*s, cy - p[1]*R*s, 0.55 + d*1.15, 0, 6.2832);
+      ctx.fillStyle = '#14171A'; ctx.fill();
+    }
+  }
+
+  var run = false, raf = 0;
+  function frame(){ a += 0.0022; draw(); raf = run ? requestAnimationFrame(frame) : 0; }
+
+  addEventListener('resize', size);
+  size();
+
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if (e.isIntersecting) fig.classList.add('is-in');
+      if (RM) return;
+      run = e.isIntersecting;
+      if (run && !raf) raf = requestAnimationFrame(frame);
+    });
+  }, { threshold:0.05 }).observe(fig);
 })();
 </script>
 </body>
