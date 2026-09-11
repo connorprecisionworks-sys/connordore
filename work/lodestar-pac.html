@@ -579,6 +579,54 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
 @media (prefers-reduced-motion:reduce){
   .efig *{ animation:none !important; opacity:1 !important; transform:none !important }
 }
+
+/* ================= ARCHIVE REEL ================= */
+.arc{ display:grid; grid-template-columns:minmax(0,22%) 1fr; gap:clamp(1.2rem,3vw,3rem);
+  align-items:start }
+.arc__idx{ display:flex; flex-direction:column; gap:.15rem; padding-top:.2rem }
+.arc__pin{ display:flex; align-items:center; gap:.62em; background:none; border:0; padding:.42em 0;
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-38); cursor:pointer; text-align:left;
+  transition:color .4s var(--ease) }
+.arc__pin .pin{ width:9px; height:12px; flex:none; fill:var(--ink);
+  opacity:.22; transition:opacity .4s var(--ease), transform .4s var(--ease-plate) }
+.arc__pin:hover{ color:var(--ink) }
+.arc__pin:hover .pin{ opacity:.55 }
+.arc__pin.is-on{ color:var(--ink) }
+.arc__pin.is-on .pin{ opacity:1; transform:translateY(-1px) }
+.arc__n{ margin-left:auto; font-size:10px; opacity:.5; font-variant-numeric:tabular-nums }
+
+.arc__reel{ position:relative; overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 94%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 4%,#000 94%,transparent) }
+.arc__track{ display:flex; align-items:flex-end; gap:clamp(.7rem,1.5vw,1.35rem); width:max-content;
+  animation:arcDrift var(--dur,72s) linear infinite; will-change:transform }
+.arc__reel[data-hold] .arc__track{ animation-play-state:paused }
+@keyframes arcDrift{ from{transform:translate3d(0,0,0)} to{transform:translate3d(-50%,0,0)} }
+
+.arc__c{ margin:0; flex:none; position:relative; cursor:pointer;
+  transition:opacity .5s var(--ease), filter .5s var(--ease) }
+.arc__c img{ display:block; height:calc(clamp(172px,22.5vw,292px) * var(--s,1));
+  width:auto; border-radius:4px;
+  background:var(--bone-deep); transition:transform .7s var(--ease-plate) }
+.arc__c figcaption{ display:flex; align-items:center; gap:.5em; padding-top:.62em;
+  font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-38); transition:color .4s var(--ease) }
+.arc__c figcaption .pin{ width:7px; height:9.5px; fill:var(--ink); opacity:.34 }
+.arc__c:hover img{ transform:translateY(-5px) }
+.arc__c:hover figcaption{ color:var(--ink) }
+.arc.is-filtered .arc__c{ opacity:.16; filter:grayscale(1) }
+.arc.is-filtered .arc__c.is-match{ opacity:1; filter:none }
+
+@media (max-width:900px){
+  .arc{ grid-template-columns:1fr; gap:1.4rem }
+  .arc__idx{ flex-direction:row; flex-wrap:wrap; gap:.2rem 1.1rem }
+  .arc__n{ display:none }
+}
+@media (prefers-reduced-motion:reduce){
+  .arc__track{ animation:none; flex-wrap:wrap; width:100%; justify-content:flex-start }
+  .arc__c:nth-child(n+9){ display:none }
+}
 </style>
 </head>
 <body>

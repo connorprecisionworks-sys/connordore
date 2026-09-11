@@ -579,6 +579,54 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
 @media (prefers-reduced-motion:reduce){
   .efig *{ animation:none !important; opacity:1 !important; transform:none !important }
 }
+
+/* ================= ARCHIVE REEL ================= */
+.arc{ display:grid; grid-template-columns:minmax(0,22%) 1fr; gap:clamp(1.2rem,3vw,3rem);
+  align-items:start }
+.arc__idx{ display:flex; flex-direction:column; gap:.15rem; padding-top:.2rem }
+.arc__pin{ display:flex; align-items:center; gap:.62em; background:none; border:0; padding:.42em 0;
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-38); cursor:pointer; text-align:left;
+  transition:color .4s var(--ease) }
+.arc__pin .pin{ width:9px; height:12px; flex:none; fill:var(--ink);
+  opacity:.22; transition:opacity .4s var(--ease), transform .4s var(--ease-plate) }
+.arc__pin:hover{ color:var(--ink) }
+.arc__pin:hover .pin{ opacity:.55 }
+.arc__pin.is-on{ color:var(--ink) }
+.arc__pin.is-on .pin{ opacity:1; transform:translateY(-1px) }
+.arc__n{ margin-left:auto; font-size:10px; opacity:.5; font-variant-numeric:tabular-nums }
+
+.arc__reel{ position:relative; overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 94%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 4%,#000 94%,transparent) }
+.arc__track{ display:flex; align-items:flex-end; gap:clamp(.7rem,1.5vw,1.35rem); width:max-content;
+  animation:arcDrift var(--dur,72s) linear infinite; will-change:transform }
+.arc__reel[data-hold] .arc__track{ animation-play-state:paused }
+@keyframes arcDrift{ from{transform:translate3d(0,0,0)} to{transform:translate3d(-50%,0,0)} }
+
+.arc__c{ margin:0; flex:none; position:relative; cursor:pointer;
+  transition:opacity .5s var(--ease), filter .5s var(--ease) }
+.arc__c img{ display:block; height:calc(clamp(172px,22.5vw,292px) * var(--s,1));
+  width:auto; border-radius:4px;
+  background:var(--bone-deep); transition:transform .7s var(--ease-plate) }
+.arc__c figcaption{ display:flex; align-items:center; gap:.5em; padding-top:.62em;
+  font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-38); transition:color .4s var(--ease) }
+.arc__c figcaption .pin{ width:7px; height:9.5px; fill:var(--ink); opacity:.34 }
+.arc__c:hover img{ transform:translateY(-5px) }
+.arc__c:hover figcaption{ color:var(--ink) }
+.arc.is-filtered .arc__c{ opacity:.16; filter:grayscale(1) }
+.arc.is-filtered .arc__c.is-match{ opacity:1; filter:none }
+
+@media (max-width:900px){
+  .arc{ grid-template-columns:1fr; gap:1.4rem }
+  .arc__idx{ flex-direction:row; flex-wrap:wrap; gap:.2rem 1.1rem }
+  .arc__n{ display:none }
+}
+@media (prefers-reduced-motion:reduce){
+  .arc__track{ animation:none; flex-wrap:wrap; width:100%; justify-content:flex-start }
+  .arc__c:nth-child(n+9){ display:none }
+}
 </style>
 </head>
 <body>
@@ -707,6 +755,7 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
   <button class="nav__toggle" data-magnet aria-expanded="false" aria-label="Open menu">+</button>
   <div class="nav__panel">
     <a class="nav__link" href="#building">Building</a>
+    <a class="nav__link" href="#archive">Archive</a>
     <a class="nav__link" href="#contact">Contact</a>
     <div class="nav__status">
       <span><span class="nav__dot"></span>Open to work</span>
@@ -790,6 +839,16 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
         </div>
       </div>
     </article>
+  </div>
+</section>
+
+<section class="sec sec--bone" id="archive">
+  <div class="sec__head"><h2>Archive</h2><p class="row__k">Photographs, by place</p></div>
+  <div class="arc">
+    <aside class="arc__idx"><button class="arc__pin is-on" data-loc="all"><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg><span>Everywhere</span><span class="arc__n">18</span></button><button class="arc__pin" data-loc="home"><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg><span>Home</span><span class="arc__n">5</span></button><button class="arc__pin" data-loc="fl"><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg><span>Florida</span><span class="arc__n">2</span></button><button class="arc__pin" data-loc="austin"><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg><span>Austin</span><span class="arc__n">1</span></button><button class="arc__pin" data-loc="swiss"><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg><span>Switzerland</span><span class="arc__n">5</span></button><button class="arc__pin" data-loc="milan"><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg><span>Milan</span><span class="arc__n">1</span></button><button class="arc__pin" data-loc="italy"><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg><span>Liguria</span><span class="arc__n">1</span></button><button class="arc__pin" data-loc="paris"><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg><span>Paris</span><span class="arc__n">3</span></button></aside>
+    <div class="arc__reel" style="--dur:90s">
+      <div class="arc__track"><figure class="arc__c" data-loc="paris" style="--s:1"><img src="assets/photos/paris-00.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Paris</figcaption></figure><figure class="arc__c" data-loc="swiss" style="--s:.86"><img src="assets/photos/swiss-01.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Switzerland</figcaption></figure><figure class="arc__c" data-loc="home" style="--s:1.07"><img src="assets/photos/home-02.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Home</figcaption></figure><figure class="arc__c" data-loc="milan" style="--s:.93"><img src="assets/photos/milan-03.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Milan</figcaption></figure><figure class="arc__c" data-loc="fl" style="--s:1.02"><img src="assets/photos/fl-04.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Florida</figcaption></figure><figure class="arc__c" data-loc="swiss" style="--s:.8"><img src="assets/photos/swiss-05.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Switzerland</figcaption></figure><figure class="arc__c" data-loc="paris" style="--s:1"><img src="assets/photos/paris-06.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Paris</figcaption></figure><figure class="arc__c" data-loc="home" style="--s:.86"><img src="assets/photos/home-07.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Home</figcaption></figure><figure class="arc__c" data-loc="swiss" style="--s:1.07"><img src="assets/photos/swiss-08.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Switzerland</figcaption></figure><figure class="arc__c" data-loc="italy" style="--s:.93"><img src="assets/photos/italy-09.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Liguria</figcaption></figure><figure class="arc__c" data-loc="home" style="--s:1.02"><img src="assets/photos/home-10.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Home</figcaption></figure><figure class="arc__c" data-loc="paris" style="--s:.8"><img src="assets/photos/paris-11.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Paris</figcaption></figure><figure class="arc__c" data-loc="swiss" style="--s:1"><img src="assets/photos/swiss-12.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Switzerland</figcaption></figure><figure class="arc__c" data-loc="fl" style="--s:.86"><img src="assets/photos/fl-13.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Florida</figcaption></figure><figure class="arc__c" data-loc="home" style="--s:1.07"><img src="assets/photos/home-14.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Home</figcaption></figure><figure class="arc__c" data-loc="austin" style="--s:.93"><img src="assets/photos/austin-15.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Austin</figcaption></figure><figure class="arc__c" data-loc="swiss" style="--s:1.02"><img src="assets/photos/swiss-16.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Switzerland</figcaption></figure><figure class="arc__c" data-loc="home" style="--s:.8"><img src="assets/photos/home-17.webp" alt="" loading="lazy" draggable="false"><figcaption><svg class="pin" viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.3-2.7-6-6-6zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8z"/></svg>Home</figcaption></figure></div>
+    </div>
   </div>
 </section>
 
@@ -1577,6 +1636,48 @@ void main() {
       }
     });
   });
+})();
+</script>
+
+<script>
+(function(){
+  var arc = document.querySelector('.arc'); if(!arc) return;
+  var reel  = arc.querySelector('.arc__reel');
+  var track = arc.querySelector('.arc__track');
+  /* the keyframe travels -50%, so the strip has to appear twice. Clone it here
+     rather than emitting it twice — the images are data URIs and doubling the
+     markup would double the page. */
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var dup = document.createDocumentFragment();
+    [].forEach.call(track.children, function(c){
+      var k = c.cloneNode(true); k.setAttribute('aria-hidden','true'); dup.appendChild(k);
+    });
+    track.appendChild(dup);
+  }
+  var cards = arc.querySelectorAll('.arc__c');
+  var pins  = arc.querySelectorAll('.arc__pin');
+
+  function apply(loc){
+    pins.forEach(function(p){ p.classList.toggle('is-on', p.dataset.loc === loc); });
+    if (loc === 'all'){ arc.classList.remove('is-filtered'); return; }
+    arc.classList.add('is-filtered');
+    cards.forEach(function(c){ c.classList.toggle('is-match', c.dataset.loc === loc); });
+  }
+  pins.forEach(function(p){
+    p.addEventListener('click', function(){ apply(p.dataset.loc); });
+    p.addEventListener('mouseenter', function(){ reel.setAttribute('data-hold',''); });
+    p.addEventListener('mouseleave', function(){ reel.removeAttribute('data-hold'); });
+  });
+  reel.addEventListener('mouseenter', function(){ reel.setAttribute('data-hold',''); });
+  reel.addEventListener('mouseleave', function(){ reel.removeAttribute('data-hold'); });
+
+  /* stop the animation entirely when off-screen */
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      track.style.animationPlayState =
+        e.isIntersecting ? '' : 'paused';
+    });
+  }, { rootMargin:'200px' }).observe(reel);
 })();
 </script>
 </body>
