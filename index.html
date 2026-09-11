@@ -714,6 +714,19 @@ html:has(.wall), body:has(.wall){ height:100svh; overflow:hidden; overscroll-beh
 .wall.is-drag{ cursor:grabbing }
 .wall__plane{ position:absolute; inset:0 }
 .wall__it{ position:absolute; left:50%; top:50%; will-change:transform }
+.wall__lbl{ position:absolute; top:44%; display:flex; align-items:center; gap:.15em;
+  white-space:nowrap; font-family:'Reenie Beanie',cursive; line-height:1;
+  font-size:clamp(17px,1.85vw,25px); color:var(--ink); opacity:.62;
+  transition:opacity .5s var(--ease) }
+.wall__lbl--l{ right:100%; margin-right:.35rem; transform:translateY(-50%) }
+.wall__lbl--r{ left:100%;  margin-left:.35rem;  transform:translateY(-50%);
+  flex-direction:row-reverse }
+.arw{ width:clamp(32px,3.6vw,54px); height:auto; flex:none; overflow:visible }
+.arw .ln,.arw .hd{ fill:none; stroke:var(--ink); stroke-width:2.4; stroke-linecap:round;
+  stroke-linejoin:round; opacity:.42 }
+.wall__lbl--r .arw{ transform:scaleX(-1) }
+.wall.is-filtered .wall__lbl{ opacity:.08 }
+.wall.is-filtered .wall__it.is-match .wall__lbl{ opacity:.66 }
 
 .wall__c{ margin:0; display:block; padding:.62rem .62rem 0; background:#FBFAF7; border-radius:2px;
   box-shadow:0 1px 1px rgba(20,19,15,.14), 0 18px 34px -20px rgba(20,19,15,.4);
@@ -723,11 +736,9 @@ html:has(.wall), body:has(.wall){ height:100svh; overflow:hidden; overscroll-beh
 .wall__c img{ display:block; width:calc(var(--w,clamp(146px,15vw,214px)) * var(--s,1));
   height:calc(var(--w,clamp(146px,15vw,214px)) * var(--s,1)); object-fit:cover; background:var(--bone-deep);
   pointer-events:none }
-.wall__c figcaption{ height:2.7em; display:flex; align-items:center; justify-content:space-between;
-  gap:1em; padding:0 .2em; font-family:var(--mono); font-size:9.5px; letter-spacing:.13em;
+.wall__c figcaption{ height:2.7em; display:flex; align-items:center; padding:0 .25em;
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
   color:rgba(20,23,26,.3); font-variant-numeric:tabular-nums }
-.wall__c figcaption b{ font:inherit; font-weight:400; font-family:'Reenie Beanie',cursive;
-  font-size:17px; letter-spacing:0; color:rgba(20,23,26,.62); line-height:1 }
 .wall:not(.is-drag) .wall__c:hover{ transform:rotate(0deg) translateY(-8px) scale(1.03);
   box-shadow:0 2px 3px rgba(20,19,15,.15), 0 40px 56px -26px rgba(20,19,15,.46) }
 .wall.is-filtered .wall__c{ opacity:.13; filter:grayscale(1) }
@@ -995,8 +1006,8 @@ html:has(.wall), body:has(.wall){ height:100svh; overflow:hidden; overscroll-beh
 
 <section class="sec sec--bone" id="archive">
   <a class="arc-tease" href="archive.html">
-    <p class="arc-tease__t">19 photographs from 7 places, <em>shot on whatever was in my pocket.</em></p>
-    <div class="arc-tease__pk"><img src="assets/photos/swiss-01-072426.webp" alt="" loading="lazy"><img src="assets/photos/milan-03-073126.webp" alt="" loading="lazy"><img src="assets/photos/italy-09-072826.webp" alt="" loading="lazy"></div>
+    <p class="arc-tease__t">18 photographs from 7 places, <em>shot on whatever was in my pocket.</em></p>
+    <div class="arc-tease__pk"><img src="assets/photos/swiss-072426-img_1755.webp" alt="" loading="lazy"><img src="assets/photos/milan-073126-img_2193.webp" alt="" loading="lazy"><img src="assets/photos/italy-072826-img_2080.webp" alt="" loading="lazy"></div>
     <span class="arc-tease__go">Open the archive <span aria-hidden="true">&#8599;</span></span>
   </a>
 </section>
