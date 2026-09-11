@@ -1652,14 +1652,20 @@ void main() {
   };
 
   var dpr = 1, W = 0, H = 0;
+  // The shader is the most expensive thing on the page and it draws smooth
+  // gradients, so it does not need device pixels. Render at CSS resolution and
+  // cap total fragments — on a 2x display that is a 2.25x saving over dpr 1.5,
+  // and the only visible difference is a marginally softer grain.
+  var PIXEL_BUDGET = 9e5;
   function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    W = Math.max(1, Math.floor(canvas.clientWidth * dpr));
-    H = Math.max(1, Math.floor(canvas.clientHeight * dpr));
+    var cw = canvas.clientWidth, ch = canvas.clientHeight;
+    dpr = Math.min(1, Math.sqrt(PIXEL_BUDGET / Math.max(1, cw * ch)));
+    W = Math.max(1, Math.floor(cw * dpr));
+    H = Math.max(1, Math.floor(ch * dpr));
     if (canvas.width !== W || canvas.height !== H) {
       canvas.width = W; canvas.height = H;
+      gl.viewport(0, 0, W, H);
     }
-    gl.viewport(0, 0, W, H);
   }
 
   var mouseTarget = [0, 0], parallax = [0, 0];
@@ -1674,7 +1680,6 @@ void main() {
 
   function draw(now) {
     if (lost) return;
-    resize();
     var t = (now - start) / 1000;
     parallax[0] += (mouseTarget[0] - parallax[0]) * 0.03;
     parallax[1] += (mouseTarget[1] - parallax[1]) * 0.03;
@@ -1698,16 +1703,22 @@ void main() {
   // scroll, so running it the whole time burns GPU for nothing.
   var visible = true;
 
+  // The field drifts on ~30s periods. Rendering it 60 times a second is wasted
+  // work; 30 is indistinguishable and halves the GPU cost.
+  var MIN_DT = 1000 / 30, lastDraw = -1e9;
   function loop(now) {
-    if (visible) draw(now);
-    if (!reduced && !lost) raf = requestAnimationFrame(loop);
+    if (!visible || lost) { raf = 0; return; }   // stop the loop, don't idle it
+    if (now - lastDraw >= MIN_DT) { lastDraw = now; draw(now); }
+    if (!reduced) raf = requestAnimationFrame(loop);
+    else raf = 0;
   }
 
   if (window.IntersectionObserver) {
     new IntersectionObserver(function (entries) {
       visible = entries[0].isIntersecting;
+      if (visible) resize();
       if (visible && !reduced && !lost && !raf) raf = requestAnimationFrame(loop);
-    }, { rootMargin: '20% 0px' }).observe(canvas);
+    }, { rootMargin: '10% 0px' }).observe(canvas);
   }
 
   document.addEventListener('visibilitychange', function () {
@@ -1723,6 +1734,7 @@ void main() {
   }, false);
 
   window.addEventListener('resize', function () {
+    resize();
     if (reduced && !lost) draw(performance.now());
   });
 
@@ -1876,9 +1888,11 @@ void main() {
       var p = pts[i], X = p[0]*ca + p[2]*sa, Z = -p[0]*sa + p[2]*ca;
       var s = f / (f - Z), d = (Z + 1) / 2;          /* 0 far .. 1 near */
       var b = Math.min(B-1, (d * B) | 0);
-      var rr = p[3] ? 0.50 + d*0.95 : 0.40 + d*0.55;
-      (p[3] ? land : sea)[b].moveTo(cx + X*R*s + rr, cy - p[1]*R*s);
-      (p[3] ? land : sea)[b].arc(cx + X*R*s, cy - p[1]*R*s, rr, 0, 6.2832);
+      var rr = p[3] ? 1.0 + d*1.9 : 0.8 + d*1.1;
+      /* squares, not circles: at one to three pixels they are
+         indistinguishable, and rect() is far cheaper than arc() ten
+         thousand times a frame */
+      (p[3] ? land : sea)[b].rect(cx + X*R*s - rr*0.5, cy - p[1]*R*s - rr*0.5, rr, rr);
     }
     for (var b = 0; b < B; b++){
       var d = (b + 0.5) / B;
@@ -1906,12 +1920,17 @@ void main() {
     a = 0.9 + p * 2.6 + idle;
     draw();
   }
-  function tick(){
+  /* ten thousand dots a frame is worth it while the line is being written and
+     the globe is tracking your scroll. Once you stop, the only motion left is a
+     slow idle turn, and half the frame rate is indistinguishable. */
+  var MOVING = 1000/60, IDLE = 1000/30, lastDraw = -1e9;
+  function tick(now){
     read();
+    var moving = Math.abs(target - p) > 0.0004;
     p += (target - p) * 0.16;
-    if (Math.abs(target - p) < 0.0004) p = target;
+    if (!moving) p = target;
     idle += 0.0014;                      /* it keeps turning once you stop */
-    apply();
+    if (now - lastDraw >= (moving ? MOVING : IDLE)) { lastDraw = now; apply(); }
     raf = requestAnimationFrame(tick);
   }
 

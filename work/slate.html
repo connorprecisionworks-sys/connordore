@@ -1613,14 +1613,20 @@ void main() {
   };
 
   var dpr = 1, W = 0, H = 0;
+  // The shader is the most expensive thing on the page and it draws smooth
+  // gradients, so it does not need device pixels. Render at CSS resolution and
+  // cap total fragments — on a 2x display that is a 2.25x saving over dpr 1.5,
+  // and the only visible difference is a marginally softer grain.
+  var PIXEL_BUDGET = 9e5;
   function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    W = Math.max(1, Math.floor(canvas.clientWidth * dpr));
-    H = Math.max(1, Math.floor(canvas.clientHeight * dpr));
+    var cw = canvas.clientWidth, ch = canvas.clientHeight;
+    dpr = Math.min(1, Math.sqrt(PIXEL_BUDGET / Math.max(1, cw * ch)));
+    W = Math.max(1, Math.floor(cw * dpr));
+    H = Math.max(1, Math.floor(ch * dpr));
     if (canvas.width !== W || canvas.height !== H) {
       canvas.width = W; canvas.height = H;
+      gl.viewport(0, 0, W, H);
     }
-    gl.viewport(0, 0, W, H);
   }
 
   var mouseTarget = [0, 0], parallax = [0, 0];
@@ -1635,7 +1641,6 @@ void main() {
 
   function draw(now) {
     if (lost) return;
-    resize();
     var t = (now - start) / 1000;
     parallax[0] += (mouseTarget[0] - parallax[0]) * 0.03;
     parallax[1] += (mouseTarget[1] - parallax[1]) * 0.03;
@@ -1659,16 +1664,22 @@ void main() {
   // scroll, so running it the whole time burns GPU for nothing.
   var visible = true;
 
+  // The field drifts on ~30s periods. Rendering it 60 times a second is wasted
+  // work; 30 is indistinguishable and halves the GPU cost.
+  var MIN_DT = 1000 / 30, lastDraw = -1e9;
   function loop(now) {
-    if (visible) draw(now);
-    if (!reduced && !lost) raf = requestAnimationFrame(loop);
+    if (!visible || lost) { raf = 0; return; }   // stop the loop, don't idle it
+    if (now - lastDraw >= MIN_DT) { lastDraw = now; draw(now); }
+    if (!reduced) raf = requestAnimationFrame(loop);
+    else raf = 0;
   }
 
   if (window.IntersectionObserver) {
     new IntersectionObserver(function (entries) {
       visible = entries[0].isIntersecting;
+      if (visible) resize();
       if (visible && !reduced && !lost && !raf) raf = requestAnimationFrame(loop);
-    }, { rootMargin: '20% 0px' }).observe(canvas);
+    }, { rootMargin: '10% 0px' }).observe(canvas);
   }
 
   document.addEventListener('visibilitychange', function () {
@@ -1684,6 +1695,7 @@ void main() {
   }, false);
 
   window.addEventListener('resize', function () {
+    resize();
     if (reduced && !lost) draw(performance.now());
   });
 
