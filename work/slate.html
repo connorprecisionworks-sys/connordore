@@ -640,6 +640,43 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
 .arc.is-filtered .arc__row.is-match{ opacity:1; filter:none }
 .arc__row{ transition:opacity .5s var(--ease), filter .5s var(--ease) }
 
+/* the one-line teaser on the home page */
+.arc-tease{ display:flex; align-items:center; gap:clamp(1rem,3vw,2.6rem);
+  padding:clamp(2rem,4vw,3.4rem) 0; border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule); text-decoration:none; color:inherit }
+.arc-tease__t{ font-size:clamp(1.15rem,2.5vw,2.05rem); line-height:1.2; letter-spacing:-.02em;
+  margin:0; max-width:22ch }
+.arc-tease__t em{ font-style:normal; color:var(--ink-38) }
+.arc-tease__pk{ display:flex; margin-left:auto; flex:none; padding-right:.6rem }
+.arc-tease__pk img{ width:clamp(56px,7vw,92px); height:clamp(56px,7vw,92px); object-fit:cover;
+  background:#FBFAF7; padding:4px 4px 12px; border-radius:2px; margin-left:-14px;
+  box-shadow:0 1px 1px rgba(20,19,15,.12), 0 12px 22px -14px rgba(20,19,15,.36);
+  transition:transform .7s var(--ease-plate) }
+.arc-tease__pk img:nth-child(1){ transform:rotate(-5deg) }
+.arc-tease__pk img:nth-child(2){ transform:rotate(3deg) }
+.arc-tease__pk img:nth-child(3){ transform:rotate(-2deg) }
+.arc-tease:hover .arc-tease__pk img:nth-child(1){ transform:rotate(-9deg) translateX(-7px) }
+.arc-tease:hover .arc-tease__pk img:nth-child(3){ transform:rotate(2deg) translateX(7px) }
+.arc-tease__go{ display:flex; align-items:center; gap:.55em; flex:none;
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-38); transition:color .4s var(--ease) }
+.arc-tease:hover .arc-tease__go{ color:var(--ink) }
+.arc-tease__go span{ transition:transform .5s var(--ease-plate) }
+.arc-tease:hover .arc-tease__go span{ transform:translate(4px,-4px) }
+@media (max-width:700px){
+  .arc-tease{ flex-wrap:wrap; gap:1.2rem }
+  .arc-tease__pk{ margin-left:0 }
+}
+
+/* the dedicated page gets room to breathe and a taller window */
+.arc-page{ min-height:100svh; display:flex; flex-direction:column; justify-content:center }
+.arc__top{ margin-bottom:clamp(1.6rem,3.5vw,3rem) }
+.arc__top h1{ font-size:clamp(2.6rem,8vw,6.4rem); line-height:.98; letter-spacing:-.035em;
+  font-weight:400; margin:0 0 .4em }
+.arc__sub{ max-width:34ch; margin:0; font-size:clamp(.95rem,1.3vw,1.12rem); line-height:1.5;
+  color:var(--ink-38) }
+.arc-page .arc__reel{ height:clamp(520px,72svh,860px) }
+
 @media (max-width:760px){
   .arc__row{ grid-template-columns:1fr; justify-items:center; gap:.5rem }
   .arc__row[data-side="l"] .arc__lbl,.arc__row[data-side="r"] .arc__lbl{
@@ -780,6 +817,7 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
   <button class="nav__toggle" data-magnet aria-expanded="false" aria-label="Open menu">+</button>
   <div class="nav__panel">
     <a class="nav__link" href="../index.html#building">Building</a>
+    <a class="nav__link" href="../archive.html">Archive</a>
     <a class="nav__link" href="../index.html#contact">Contact</a>
     <div class="nav__status">
       <span><span class="nav__dot"></span>Open to work</span>
