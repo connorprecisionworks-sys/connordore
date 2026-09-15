@@ -6,7 +6,18 @@
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<meta name="description" content="Case study: Lexx.">
+<meta name="description" content="Connor Dore on Lexx: how it was built and what it does.">
+<link rel="canonical" href="https://connordore.com/work/lexx.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Connor Dore">
+<meta property="og:url" content="https://connordore.com/work/lexx.html">
+<meta property="og:title" content="Lexx — Connor Dore">
+<meta property="og:description" content="Connor Dore on Lexx: how it was built and what it does.">
+<meta property="og:image" content="https://connordore.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lexx — Connor Dore">
+<meta name="twitter:description" content="Connor Dore on Lexx: how it was built and what it does.">
+<meta name="twitter:image" content="https://connordore.com/og.png">
 <title>Lexx — Connor Dore</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500&family=Reenie+Beanie&display=swap">
 <style>
@@ -462,7 +473,7 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
 .note-mark{ display:flex; justify-content:flex-end; padding-top:.3em }
 .note-mark svg{ width:clamp(44px,4.4vw,76px); height:auto; display:block;
   color:var(--ink); overflow:visible }
-.note-stmt{ margin:0; font-size:clamp(1.7rem,4.4vw,4.15rem); line-height:1.08;
+.note-stmt{ margin:0; font-weight:400; font-size:clamp(1.7rem,4.4vw,4.15rem); line-height:1.08;
   letter-spacing:-.037em; font-weight:400; color:var(--ink) }
 .note-stmt .dim{ color:var(--ink); transition:color 1.25s var(--ease) }
 .note-stmt.is-resolved .dim{ color:var(--ink-38) }
@@ -720,7 +731,9 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
 }
 
 /* ================= THE WALL ================= */
-html:has(.wall), body:has(.wall){ height:100svh; overflow:hidden; overscroll-behavior:none }
+@media (min-width:761px){
+  html:has(.wall), body:has(.wall){ height:100svh; overflow:hidden; overscroll-behavior:none }
+}
 .wall{ position:fixed; inset:0; overflow:hidden; background:var(--bone-deep);
   cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none }
 .wall.is-drag{ cursor:grabbing }
@@ -785,7 +798,30 @@ html:has(.wall), body:has(.wall){ height:100svh; overflow:hidden; overscroll-beh
   font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
   color:var(--ink-38); pointer-events:none; transition:opacity .6s var(--ease) }
 .wall.is-touched ~ .wall__hint{ opacity:0 }
-@media (max-width:700px){ .wall__c{ --w:132px } }
+/* ---- phones: the plane becomes a strip ----
+   Dragging an infinite plane fights the browser's own scrolling on a
+   touchscreen, so below this width the prints just stack and you scroll
+   the page like anything else. */
+@media (max-width:760px){
+  .wall{ position:static; overflow:visible; cursor:auto; touch-action:auto;
+    background:none; padding:0 var(--gutter) 5rem }
+  .wall__plane{ position:static; display:flex; flex-direction:column;
+    align-items:center; gap:clamp(1.8rem,6vw,2.8rem) }
+  .wall__it{ position:static; transform:none !important; display:flex;
+    flex-direction:column; align-items:center; gap:.5rem }
+  .wall__c{ --w:min(62vw,300px);
+    /* half the tilt: at this size the full angle throws the corners at the gutter */
+    transform:rotate(calc(var(--r,0deg) * 0.5)) }
+  .wall__lbl{ position:static; margin:0; transform:none; order:2;
+    font-size:clamp(22px,7vw,30px); opacity:.72 }
+  .wall__lbl--r{ flex-direction:row }
+  .arw{ display:none }
+  .wall__hud{ position:static }
+  .wall__head{ background:none; padding:5.5rem var(--gutter) calc(var(--gutter) * .4) }
+  .wall__idx{ background:none; justify-content:flex-start;
+    padding:0 var(--gutter) calc(var(--gutter) * .8) }
+  .wall__hint{ display:none }
+}
 @media (prefers-reduced-motion:reduce){ .wall__c{ transition:none } }
 </style>
 </head>
