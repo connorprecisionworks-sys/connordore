@@ -28,7 +28,7 @@
            "https://www.linkedin.com/in/connor-dore-9205b23a9/"]}
 </script>
 <title>Connor Dore — AI &amp; Software</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500&family=Reenie+Beanie&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500&family=Reenie+Beanie&family=JetBrains+Mono:wght@400&family=Michroma&display=swap">
 <style>
 :root{
   --bone:#F0EDE6; --paper:#FBFAF7; --bone-deep:#E4DED1;
@@ -832,6 +832,55 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
   .wall__hint{ display:none }
 }
 @media (prefers-reduced-motion:reduce){ .wall__c{ transition:none } }
+
+/* ================= METIS VISION — the scroll-in film ================= */
+/* Scroll past the headline and the page goes dark around a black frame; the
+   frame fills the screen and the teaser plays. Scrolling gets heavy while it
+   runs (you can push through, you won't by accident). Keep going and the film
+   steps aside for the name. */
+.mvs{ position:relative; height:430vh; z-index:60 }
+.mvs__dim{ position:fixed; inset:0; background:#0A0A0A; opacity:0; pointer-events:none; z-index:59 }
+.mvs__stick{ position:sticky; top:0; height:100vh; height:100svh; overflow:hidden; z-index:61 }
+.mvs__frame{ position:absolute; inset:0; background:#0A0A0A; transform-origin:50% 50%;
+  will-change:transform, border-radius; overflow:hidden }
+.mvs__frame video{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#0A0A0A;
+  opacity:0; transition:opacity .9s linear }
+.mvs.is-playing .mvs__frame video{ opacity:1 }
+.mvs__mono{ font-family:'JetBrains Mono',ui-monospace,monospace; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase }
+/* the side card: arrives as the film steps left */
+.mvs__side{ position:absolute; right:var(--gutter,5vw); top:50%; width:min(34vw,34rem); color:#F4F4F0;
+  transform:translate(12vw,-50%); opacity:0; will-change:transform,opacity }
+/* Michroma: wide, sci-fi capitals that match the film's HUD */
+.mvs__soon{ margin:0; font-family:'Michroma','JetBrains Mono',sans-serif; font-weight:400; text-transform:uppercase;
+  font-size:clamp(2rem,4.3vw,4.8rem); line-height:1.08; letter-spacing:.03em }
+.mvs__soon b{ display:inline-block; width:.2em; height:.2em; margin-left:.14em; border-radius:50%; background:#FF3D8B }
+/* controls + scroll hint, only while the film has the screen */
+.mvs__ui{ position:absolute; left:0; right:0; bottom:clamp(1rem,3vh,2rem); padding:0 var(--gutter,5vw);
+  display:flex; justify-content:space-between; align-items:center; color:#8A8A85; opacity:0; transition:opacity .5s linear }
+.mvs.is-gate .mvs__ui{ opacity:1 }
+.mvs__hint{ display:flex; align-items:center; gap:.7rem }
+.mvs__track{ width:120px; height:2px; background:rgba(244,244,240,.18); position:relative; overflow:hidden }
+.mvs__track i{ position:absolute; inset:0; background:#FF3D8B; transform-origin:0 50%; transform:scaleX(0) }
+.mvs__btn{ all:unset; box-sizing:border-box; display:inline-flex; align-items:center; gap:.55rem; height:38px; padding:0 .9rem;
+  border-radius:9999px; border:1px solid rgba(244,244,240,.24); color:#F4F4F0; cursor:pointer }
+.mvs__btn[aria-pressed="true"]{ background:#F4F4F0; color:#0A0A0A }
+.mvs__btn:focus-visible{ outline:2px solid #FF3D8B; outline-offset:3px }
+.mvs__btn svg{ width:15px; height:15px }
+/* phones: the film rises, the name lands underneath */
+@media (max-width:760px){
+  .mvs{ height:360vh }
+  .mvs__side{ left:var(--gutter,5vw); right:var(--gutter,5vw); width:auto; top:auto; bottom:14vh; transform:translateY(8vh) }
+}
+/* reduced motion: no pinning, no darkening, just the film and the name */
+@media (prefers-reduced-motion:reduce){
+  .mvs{ height:auto; padding:clamp(3rem,6vw,5rem) var(--gutter,5vw); background:#0A0A0A }
+  .mvs__dim{ display:none }
+  .mvs__stick{ position:relative; height:auto; overflow:visible; display:grid; gap:2rem }
+  .mvs__frame{ position:relative; aspect-ratio:1344/576; border-radius:20px }
+  .mvs__frame video{ opacity:1 }
+  .mvs__side{ position:relative; right:auto; top:auto; width:auto; transform:none; opacity:1 }
+  .mvs__ui{ position:relative; opacity:1; padding:0 }
+}
 </style>
 </head>
 <body>
@@ -979,6 +1028,28 @@ figcaption{font-size:var(--meta);text-transform:none;letter-spacing:0;line-heigh
       <p class="meta">Evaluation &amp; provenance</p>
       <p class="meta">Full-stack</p>
       <p class="meta">Interface design</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ METIS VISION — SCROLL-IN FILM ============ -->
+<div class="mvs__dim" aria-hidden="true"></div>
+<section class="mvs" id="metis" aria-label="Metis Vision, coming soon">
+  <div class="mvs__stick">
+    <div class="mvs__frame">
+      <video muted playsinline preload="none" poster="assets/metis/metis-teaser-poster.jpg" aria-label="Metis Vision teaser, 13 seconds">
+        <source src="assets/metis/metis-teaser-banner.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="mvs__side">
+      <h2 class="mvs__soon">Coming<br>soon<b aria-hidden="true"></b></h2>
+    </div>
+    <div class="mvs__ui">
+      <span class="mvs__hint mvs__mono"><span class="mvs__track"><i></i></span><span class="mvs__hint-t">Playing</span></span>
+      <button class="mvs__btn mvs__mono" type="button" aria-pressed="false">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z"/><path d="M11.5 5.5c1 .7 1 4.3 0 5M13.5 3.5c2 1.5 2 7.5 0 9"/></svg>
+        <span>Sound</span>
+      </button>
     </div>
   </div>
 </section>
@@ -1988,6 +2059,89 @@ void main() {
       else if (!e.isIntersecting && raf){ cancelAnimationFrame(raf); raf = 0; }
     });
   }, { rootMargin:'100px' }).observe(scroll);
+})();
+</script>
+<script>
+/* ============ METIS VISION — scroll-in film ============
+   Timeline, as fractions of the pinned scroll (s):
+     before pin   page darkens around a shrinking-in black frame (e: 0 -> 1)
+     0.00 - 0.50  the gate: frame is the whole screen, film plays, scroll is heavy
+     0.50 - 0.80  film steps left and shrinks, "Coming soon" arrives on the right
+     0.80 - 1.00  hold, then the page lifts back to bone as the next section comes in */
+(function(){
+  var sec = document.getElementById('metis'); if (!sec || !sec.classList.contains('mvs')) return;
+  var RMm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var dim = document.querySelector('.mvs__dim'), frame = sec.querySelector('.mvs__frame'),
+      v = sec.querySelector('video'), side = sec.querySelector('.mvs__side'),
+      bar = sec.querySelector('.mvs__track i'), hint = sec.querySelector('.mvs__hint-t'),
+      snd = sec.querySelector('.mvs__btn'), stick = sec.querySelector('.mvs__stick');
+  var c = function(x){ return x < 0 ? 0 : x > 1 ? 1 : x; };
+  var ez = function(t){ t = c(t); return t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2; };
+  var GATE = .5, heavy = false, phone = matchMedia('(max-width:760px)');
+
+  function play(){ var p = v.play(); if (p && p.catch) p.catch(function(){}); }
+  snd.addEventListener('click', function(){
+    v.muted = !v.muted; snd.setAttribute('aria-pressed', !v.muted);
+    snd.lastElementChild.textContent = v.muted ? 'Sound' : 'Sound on';
+    if (!v.muted && v.currentTime > v.duration - .5) v.currentTime = 0;
+    play();
+  });
+  v.addEventListener('ended', function(){ hint.textContent = 'Scroll'; if (!RMm) toSoon(); });
+
+  // when the film ends inside the gate, carry the reader on to "Coming soon"
+  function toSoon(){
+    var vh = innerHeight, r = sec.getBoundingClientRect();
+    var s = -r.top / (r.height - vh);
+    if (r.top > 1 || s >= GATE) return;                   // only from the gate, never backwards
+    var y = scrollY + r.top + .84 * (r.height - vh);
+    setHeavy(false);
+    var L = window.__lenisRef;
+    if (L) L.scrollTo(y, { duration:2.2, easing:function(t){ return t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2; } });
+    else scrollTo({ top:y, behavior:'smooth' });
+  }
+
+  if (RMm) {                                   // no pinning: a plain film with its controls
+    v.controls = true; v.preload = 'metadata'; return;
+  }
+
+  function setHeavy(on){                       // the gate: wheel travel counts for a fifth
+    if (on === heavy) return; heavy = on;
+    var L = window.__lenisRef;
+    if (L && L.virtualScroll) L.virtualScroll.options.wheelMultiplier = on ? .2 : 1;
+  }
+
+  function frameT(){
+    var vh = innerHeight, r = sec.getBoundingClientRect();
+    var e = c((vh - r.top) / vh);                          // approach
+    var s = c(-r.top / (r.height - vh));                   // pinned progress
+    var out = c((vh - r.bottom) / (vh * .8));              // section leaving
+    dim.style.opacity = (ez(e) * (1 - ez(out))).toFixed(3);
+    stick.style.opacity = (1 - ez(out * 1.6)).toFixed(3);
+
+    // frame: a black card that grows to fill the screen, then steps aside
+    var grow = ez(e), step = ez((s - GATE) / .3);
+    var sc = (.46 + .54 * grow) * (1 - .4 * step);
+    var tx = phone.matches ? 0 : -21 * step, ty = phone.matches ? -17 * step : 0;
+    frame.style.transform = 'translate(' + tx + 'vw,' + ty + 'vh) scale(' + sc.toFixed(4) + ')';
+    frame.style.borderRadius = (Math.max(1 - grow, step) * 20 / sc).toFixed(1) + 'px';
+
+    // side card
+    var q = ez((s - GATE - .08) / .22);
+    side.style.opacity = q.toFixed(3);
+    side.style.transform = phone.matches ? 'translateY(' + (8 * (1 - q)) + 'vh)'
+                                         : 'translate(' + (12 * (1 - q)) + 'vw,-50%)';
+
+    // film: starts once the screen is black, keeps looping behind the name
+    var inGate = e >= 1 && s < GATE;
+    sec.classList.toggle('is-gate', inGate);
+    if (e >= .98 && r.bottom > 0) { if (v.paused) { v.preload = 'auto'; play(); sec.classList.add('is-playing'); } }
+    else if (r.bottom <= 0 || e < .5) { if (!v.paused) v.pause(); }
+    if (v.ended && s > GATE) { v.currentTime = 0; play(); }
+    setHeavy(inGate && !v.ended);
+    if (v.duration) bar.style.transform = 'scaleX(' + (v.currentTime / v.duration).toFixed(3) + ')';
+    requestAnimationFrame(frameT);
+  }
+  requestAnimationFrame(frameT);
 })();
 </script>
 </body>
